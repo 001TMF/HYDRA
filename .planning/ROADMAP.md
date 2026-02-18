@@ -32,12 +32,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Options math gracefully degrades to ATM implied vol when fewer than 8 liquid strikes are available
 **Validation Gate**: Can B-L produce stable implied distributions from thin-market options? If data is too sparse or noisy for stable signal extraction, the entire thesis needs re-examination before proceeding.
 **Research Flag**: Data vendor selection (Databento vs. CME DataMine vs. IB historical) and target market selection (oats vs. lean hogs vs. ethanol) need hands-on evaluation of API quality, cost, and thin-market options chain completeness.
-**Plans**: TBD
+**Plans**: 6 plans in 4 waves
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md -- Project scaffold, Parquet lake, feature store with lookahead prevention
+- [ ] 01-02-PLAN.md -- Futures, options, and COT ingestion pipelines
+- [ ] 01-03-PLAN.md -- SVI volatility surface calibration (TDD)
+- [ ] 01-04-PLAN.md -- Breeden-Litzenberger density extraction + implied moments (TDD)
+- [ ] 01-05-PLAN.md -- Greeks flow aggregation: GEX, vanna, charm (TDD)
+- [ ] 01-06-PLAN.md -- Data quality monitoring + Phase 1 integration checkpoint
 
 ### Phase 2: Signal Layer + Baseline Model
 **Goal**: The divergence between options-implied expectations and sentiment signals demonstrates out-of-sample predictive power, validated through walk-forward backtesting with realistic slippage
@@ -117,7 +120,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Infrastructure + Options Math Engine | 0/TBD | Not started | - |
+| 1. Data Infrastructure + Options Math Engine | 0/6 | Planned | - |
 | 2. Signal Layer + Baseline Model | 0/TBD | Not started | - |
 | 3. Sandbox + Experiment Infrastructure | 0/TBD | Not started | - |
 | 4. Agent Core + LLM Integration | 0/TBD | Not started | - |
