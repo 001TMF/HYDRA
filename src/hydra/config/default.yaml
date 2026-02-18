@@ -1,0 +1,33 @@
+# HYDRA default configuration
+# All configurable thresholds from Phase 1 research
+
+staleness_thresholds:
+  futures_days: 1        # Max trading days before futures data is stale
+  options_days: 1        # Max trading days before options data is stale
+  cot_days: 7            # Max calendar days before COT data is stale
+
+quality:
+  min_liquid_strikes: 8  # Minimum liquid strikes for full B-L density extraction
+  max_spread_pct: 0.20   # Maximum bid-ask spread as fraction of mid-price
+  min_oi: 50             # Minimum open interest for a strike to be "liquid"
+
+markets:
+  default:
+    symbol: "HE"
+    name: "Lean Hogs"
+    contract_multiplier: 400
+    cftc_code: "054642"
+    exchange: "CME"
+    timezone: "America/Chicago"
+
+data_sources:
+  databento:
+    dataset: "GLBX.MDP3"
+    futures_schema: "ohlcv-1d"
+    options_schema: "mbp-1"
+  cot:
+    report_type: "disaggregated_fut"
+    redownload_weeks: 4    # Re-download last N weeks to catch CFTC revisions
+
+feature_store:
+  ffill_limit_days: 5      # Max days to forward-fill before marking stale
