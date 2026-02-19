@@ -82,10 +82,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Execution & Paper Trading
 
-- [ ] **EXEC-01**: Paper trading pipeline uses Interactive Brokers paper account with same execution path as live
+- [x] **EXEC-01**: Paper trading pipeline uses Interactive Brokers paper account with same execution path as live
 - [ ] **EXEC-02**: All paper trading fills logged with timestamps and actual slippage for model validation
 - [ ] **EXEC-03**: Order management implements smart order routing (limit orders with patience, TWAP for larger positions)
-- [ ] **EXEC-04**: Risk management runs as middleware in execution path (not optional check)
+- [x] **EXEC-04**: Risk management runs as middleware in execution path (not optional check)
 - [ ] **EXEC-05**: 4+ weeks of stable paper trading with at least one successful self-healing cycle before any live capital
 
 ## v2 Requirements
@@ -190,10 +190,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CLI-04 | Phase 3 | Complete |
 | CLI-05 | Phase 3 | Complete |
 | CLI-06 | Phase 3 | Complete |
-| EXEC-01 | Phase 5 | Pending |
+| EXEC-01 | Phase 5 | Complete |
 | EXEC-02 | Phase 5 | Pending |
 | EXEC-03 | Phase 5 | Pending |
-| EXEC-04 | Phase 5 | Pending |
+| EXEC-04 | Phase 5 | Complete |
 | EXEC-05 | Phase 5 | Pending |
 
 **Coverage:**

@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The agent loop must reliably detect model degradation, diagnose root causes, generate and test improvement hypotheses, and promote better models -- all without human intervention.
-**Current focus:** Phase 4: Agent Core + LLM Integration
+**Current focus:** Phase 5: Execution + Hardening
 
 ## Current Position
 
-Phase: 4 of 5 (Agent Core + LLM Integration)
-Plan: 5 of 5 in current phase
-Status: Phase 4 COMPLETE
-Last activity: 2026-02-19 -- Completed 04-05-PLAN.md (Agent Loop Wiring)
+Phase: 5 of 5 (Execution + Hardening)
+Plan: 2 of 5 in current phase
+Status: Executing Phase 5
+Last activity: 2026-02-19 -- Completed 05-01-PLAN.md (Broker Abstraction + Risk Gate)
 
-Progress: [##########] 100% (Phase 4: 5/5 plans)
+Progress: [##--------] 20% (Phase 5: 1/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: 4min
-- Total execution time: 1.4 hours
+- Total execution time: 1.45 hours
 
 **By Phase:**
 
@@ -45,6 +45,7 @@ Progress: [##########] 100% (Phase 4: 5/5 plans)
 | Phase 04 P03 | 5min | 2 tasks | 5 files |
 | Phase 04 P04 | 8min | 2 tasks | 7 files |
 | Phase 04 P05 | 8min | 2 tasks | 4 files |
+| Phase 05 P01 | 3min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -122,6 +123,10 @@ Recent decisions affecting current work:
 - [04-05]: Dual promotion path: 3-of-5 PromotionEvaluator when window scores provided, single-score comparison as Honda default
 - [04-05]: check_permission returns graceful skip (not PermissionDeniedError) at each loop step for testability
 - [04-05]: Diagnosis inconclusive threshold: confidence < 0.3 AND no evidence causes early exit
+- [05-01]: Paper port 4002 as default with is_paper property for safe mode detection
+- [05-01]: Client ID allocation: 1=trading, 2=diagnostic, 3=CLI
+- [05-01]: Exponential backoff reconnection: 1s->2s->4s->8s max 30s, 10 attempts max
+- [05-01]: RiskGate has no submit_order passthrough -- only submit() with mandatory risk check
 
 ### Pending Todos
 
@@ -135,6 +140,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 04-05-PLAN.md (Agent Loop Wiring) -- Phase 4 COMPLETE
+Stopped at: Completed 05-01-PLAN.md (Broker Abstraction + Risk Gate)
 Resume file: None
-Next: Phase 5 planning or verification
+Next: 05-02-PLAN.md (Order Management)
