@@ -73,6 +73,13 @@ def _make_runner(trading_mode: str = "paper", model_fitted: bool = True) -> tupl
     reconciler = MagicMock()
     reconciler.reconcile = MagicMock(return_value=None)
 
+    # Feature assembler mock -- returns a dict of features
+    feature_assembler = MagicMock()
+    feature_assembler.FEATURE_NAMES = [f"f{i}" for i in range(17)]
+    feature_assembler.assemble_at = MagicMock(
+        return_value={f"f{i}": float(i) for i in range(17)}
+    )
+
     config = {"trading_mode": trading_mode}
 
     runner = PaperTradingRunner(
@@ -83,6 +90,7 @@ def _make_runner(trading_mode: str = "paper", model_fitted: bool = True) -> tupl
         agent_loop=agent_loop,
         model=model,
         reconciler=reconciler,
+        feature_assembler=feature_assembler,
         config=config,
     )
 
@@ -94,6 +102,7 @@ def _make_runner(trading_mode: str = "paper", model_fitted: bool = True) -> tupl
         "agent_loop": agent_loop,
         "model": model,
         "reconciler": reconciler,
+        "feature_assembler": feature_assembler,
     }
 
 
@@ -170,7 +179,15 @@ async def test_run_daily_cycle_calls_components_in_order():
     """run_daily_cycle calls broker, agent_loop, model, order_manager."""
     runner, mocks = _make_runner(model_fitted=True)
 
-    result = await runner.run_daily_cycle()
+    market_snapshot = {
+        "mid_price": 350.0,
+        "spread": 0.25,
+        "adv": 500.0,
+        "volatility": 0.02,
+        "contract": MagicMock(),
+    }
+    with patch.object(runner, "_fetch_market_snapshot", new_callable=AsyncMock, return_value=market_snapshot):
+        result = await runner.run_daily_cycle()
 
     # Verify broker connection was checked
     mocks["broker"].is_connected.assert_called()
@@ -216,7 +233,15 @@ async def test_run_daily_cycle_logs_fills():
     """Fills are logged to fill_journal after order execution."""
     runner, mocks = _make_runner(model_fitted=True)
 
-    result = await runner.run_daily_cycle()
+    market_snapshot = {
+        "mid_price": 350.0,
+        "spread": 0.25,
+        "adv": 500.0,
+        "volatility": 0.02,
+        "contract": MagicMock(),
+    }
+    with patch.object(runner, "_fetch_market_snapshot", new_callable=AsyncMock, return_value=market_snapshot):
+        result = await runner.run_daily_cycle()
 
     # FillJournal.log_fill should have been called for each fill
     mocks["fill_journal"].log_fill.assert_called_once()
@@ -231,7 +256,15 @@ async def test_run_daily_cycle_handles_blocked_orders():
     # Make order_manager return a blocked order
     mocks["order_manager"].route_order = AsyncMock(return_value=[None])
 
-    result = await runner.run_daily_cycle()
+    market_snapshot = {
+        "mid_price": 350.0,
+        "spread": 0.25,
+        "adv": 500.0,
+        "volatility": 0.02,
+        "contract": MagicMock(),
+    }
+    with patch.object(runner, "_fetch_market_snapshot", new_callable=AsyncMock, return_value=market_snapshot):
+        result = await runner.run_daily_cycle()
 
     assert result["n_orders_blocked"] == 1
     assert result["n_fills"] == 0

@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from hydra.execution.reconciler import ReconciliationReport, SlippageReconciler
     from hydra.execution.risk_gate import RiskGate
     from hydra.model.baseline import BaselineModel
+    from hydra.model.features import FeatureAssembler
 
 logger = structlog.get_logger(__name__)
 
@@ -63,12 +64,21 @@ class PaperTradingRunner:
         Trading signal source (directional prediction).
     reconciler : SlippageReconciler
         Predicted vs actual slippage comparison.
+    feature_assembler : FeatureAssembler | None
+        Feature matrix assembler for model prediction. If None, model
+        prediction is skipped (useful for tests or before feature store
+        is populated).
     config : dict | None
         Runtime configuration with keys:
         - schedule_hour (int, default 14): hour for daily cycle
         - schedule_minute (int, default 0): minute for daily cycle
         - schedule_timezone (str, default "US/Central"): timezone
         - trading_mode (str, default "paper"): "paper" or "live"
+        - market (str, default "ZO"): market identifier for feature store
+        - contract_symbol (str, default "ZO"): IB contract symbol
+        - contract_exchange (str, default "CBOT"): IB exchange
+        - contract_sec_type (str, default "FUT"): IB security type
+        - n_contracts (int, default 1): order size per signal
     """
 
     def __init__(
@@ -80,6 +90,7 @@ class PaperTradingRunner:
         agent_loop: AgentLoop,
         model: BaselineModel,
         reconciler: SlippageReconciler,
+        feature_assembler: FeatureAssembler | None = None,
         config: dict | None = None,
     ) -> None:
         self._broker = broker
@@ -89,14 +100,21 @@ class PaperTradingRunner:
         self._agent_loop = agent_loop
         self._model = model
         self._reconciler = reconciler
+        self._feature_assembler = feature_assembler
 
         cfg = config or {}
         self._schedule_hour: int = cfg.get("schedule_hour", 14)
         self._schedule_minute: int = cfg.get("schedule_minute", 0)
         self._schedule_timezone: str = cfg.get("schedule_timezone", "US/Central")
         self._trading_mode: str = cfg.get("trading_mode", "paper")
+        self._market: str = cfg.get("market", "ZO")
+        self._contract_symbol: str = cfg.get("contract_symbol", "ZO")
+        self._contract_exchange: str = cfg.get("contract_exchange", "CBOT")
+        self._contract_sec_type: str = cfg.get("contract_sec_type", "FUT")
+        self._n_contracts: int = cfg.get("n_contracts", 1)
 
         self._scheduler = None
+        self._qualified_contract = None  # cached after first qualification
 
     async def start(self) -> None:
         """Start the paper trading runner.
@@ -232,13 +250,14 @@ class PaperTradingRunner:
         # ------------------------------------------------------------------
         # 3. Run agent loop (self-healing)
         # ------------------------------------------------------------------
+        perf = self._get_recent_performance()
         try:
             agent_result = self._agent_loop.run_cycle(
-                recent_returns=np.array([0.0]),  # Minimal data for cycle
-                predictions=np.array([0]),
-                actuals=np.array([0]),
-                probabilities=np.array([0.5]),
-                baseline_sharpe=0.0,
+                recent_returns=perf["recent_returns"],
+                predictions=perf["predictions"],
+                actuals=perf["actuals"],
+                probabilities=perf["probabilities"],
+                baseline_sharpe=perf["baseline_sharpe"],
             )
             summary["agent_result"] = {
                 "phase_reached": agent_result.phase_reached.value,
@@ -265,11 +284,15 @@ class PaperTradingRunner:
             return summary
 
         try:
-            # Assemble minimal features from account state
-            features = np.zeros((1, 10))  # Placeholder feature vector
+            features = self._assemble_features()
+            if features is None:
+                logger.warning("feature_assembly_failed_skipping_signal")
+                summary["signal"] = None
+                return summary
+
             prediction = self._model.predict(features)
             direction = "BUY" if prediction[0] == 1 else "SELL"
-            n_contracts = 1  # Conservative single-contract paper trading
+            n_contracts = self._n_contracts
 
             summary["signal"] = {
                 "direction": direction,
@@ -286,14 +309,15 @@ class PaperTradingRunner:
             return summary
 
         # ------------------------------------------------------------------
-        # 5. Execute signal
+        # 5. Get live market data + execute signal
         # ------------------------------------------------------------------
         try:
-            from ib_async import Contract
-
-            contract = Contract(symbol="ZO", exchange="CBOT", secType="FUT")
-            mid_price = 350.0  # Placeholder -- real data from broker in production
-            adv = 500.0  # Average daily volume placeholder
+            market_data = await self._fetch_market_snapshot()
+            mid_price = market_data["mid_price"]
+            adv = market_data["adv"]
+            spread = market_data["spread"]
+            volatility = market_data["volatility"]
+            contract = market_data["contract"]
             trade_loss = 0.0
 
             trades = await self._order_manager.route_order(
@@ -320,7 +344,6 @@ class PaperTradingRunner:
                     n_blocked += 1
                     continue
 
-                # Extract fills from trade
                 fills = getattr(trade, "fills", [])
                 for fill in fills:
                     fill_price = fill.execution.price
@@ -328,13 +351,13 @@ class PaperTradingRunner:
                     predicted_slippage = estimate_slippage(
                         order_size=n_contracts,
                         daily_volume=adv,
-                        spread=0.25,  # Typical thin-market spread
-                        daily_volatility=0.02,
+                        spread=spread,
+                        daily_volatility=volatility,
                     )
 
                     record = FillRecord(
                         timestamp=cycle_time,
-                        symbol="ZO",
+                        symbol=self._contract_symbol,
                         direction=1 if direction == "BUY" else -1,
                         n_contracts=fill.execution.shares,
                         order_price=mid_price,
@@ -342,7 +365,7 @@ class PaperTradingRunner:
                         predicted_slippage=predicted_slippage,
                         actual_slippage=actual_slippage,
                         volume_at_fill=adv,
-                        spread_at_fill=0.25,
+                        spread_at_fill=spread,
                         fill_latency_ms=getattr(fill, "time", 0),
                         order_id=getattr(trade.order, "orderId", None),
                     )
@@ -363,6 +386,169 @@ class PaperTradingRunner:
             logger.error("order_execution_failed", error=str(exc))
 
         return summary
+
+    # ------------------------------------------------------------------
+    # Data helpers — replace placeholders with real data sources
+    # ------------------------------------------------------------------
+
+    def _assemble_features(self) -> np.ndarray | None:
+        """Assemble feature vector for model prediction.
+
+        Uses FeatureAssembler to pull real features from the feature store.
+        Returns None if assembler is not configured or data is unavailable.
+        """
+        import numpy as np
+
+        if self._feature_assembler is None:
+            logger.info("no_feature_assembler_configured")
+            return None
+
+        try:
+            now = datetime.now(timezone.utc)
+            feat_dict = self._feature_assembler.assemble_at(self._market, now)
+
+            # Convert dict to numpy array in FEATURE_NAMES order
+            names = self._feature_assembler.FEATURE_NAMES
+            row = [feat_dict.get(n) for n in names]
+            # Replace None with NaN for LightGBM native NaN handling
+            row = [v if v is not None else float("nan") for v in row]
+            return np.array([row])
+        except Exception as exc:
+            logger.warning("feature_assembly_error", error=str(exc))
+            return None
+
+    async def _fetch_market_snapshot(self) -> dict:
+        """Fetch live bid/ask/volume from IB for the configured contract.
+
+        Returns dict with mid_price, spread, adv, volatility, contract.
+        Qualifies the contract on first call and caches it.
+        """
+        import math
+
+        import numpy as np
+        from ib_async import Contract
+
+        # Qualify contract once and cache
+        if self._qualified_contract is None:
+            raw = Contract(
+                symbol=self._contract_symbol,
+                exchange=self._contract_exchange,
+                secType=self._contract_sec_type,
+            )
+            self._qualified_contract = await self._broker.qualify_contract(raw)
+            logger.info(
+                "contract_qualified",
+                symbol=self._contract_symbol,
+                con_id=getattr(self._qualified_contract, "conId", None),
+            )
+
+        contract = self._qualified_contract
+
+        # Request live snapshot (frozen data for paper accounts)
+        tickers = self._broker.ib.reqTickers(contract)
+        ticker = tickers[0] if tickers else None
+
+        if ticker and not math.isnan(ticker.bid) and not math.isnan(ticker.ask):
+            mid_price = (ticker.bid + ticker.ask) / 2.0
+            spread = ticker.ask - ticker.bid
+        elif ticker and not math.isnan(ticker.last):
+            mid_price = ticker.last
+            spread = mid_price * 0.002  # estimate 0.2% spread
+            logger.warning("no_bid_ask_using_last", last=mid_price)
+        else:
+            raise ValueError("No market data available from IB")
+
+        # Request 20-day historical bars for ADV and volatility
+        bars = await self._broker.ib.reqHistoricalDataAsync(
+            contract,
+            endDateTime="",
+            durationStr="20 D",
+            barSizeSetting="1 day",
+            whatToShow="TRADES",
+            useRTH=True,
+        )
+
+        if bars:
+            volumes = [b.volume for b in bars]
+            closes = [b.close for b in bars]
+            adv = float(np.mean(volumes))
+            # Daily volatility from log returns
+            if len(closes) >= 2:
+                log_returns = np.diff(np.log(closes))
+                volatility = float(np.std(log_returns))
+            else:
+                volatility = 0.02
+        else:
+            adv = 500.0
+            volatility = 0.02
+            logger.warning("no_historical_bars_using_defaults")
+
+        logger.info(
+            "market_snapshot",
+            mid_price=round(mid_price, 4),
+            spread=round(spread, 4),
+            adv=round(adv, 1),
+            volatility=round(volatility, 4),
+        )
+
+        return {
+            "mid_price": mid_price,
+            "spread": spread,
+            "adv": adv,
+            "volatility": volatility,
+            "contract": contract,
+        }
+
+    def _get_recent_performance(self, lookback: int = 30) -> dict:
+        """Pull recent performance data from fill journal for the agent loop.
+
+        Returns arrays for recent_returns, predictions, actuals, probabilities,
+        and baseline_sharpe. If insufficient data, returns minimal arrays that
+        will cause the agent loop to report 'no drift detected' (correct
+        behavior when we don't have enough history).
+        """
+        import numpy as np
+
+        fills = self._fill_journal.get_fills(
+            symbol=self._contract_symbol, limit=lookback
+        )
+
+        if len(fills) < 2:
+            # Not enough fills for meaningful performance analysis.
+            # Agent loop will see no drift, which is correct.
+            return {
+                "recent_returns": np.array([0.0]),
+                "predictions": np.array([0]),
+                "actuals": np.array([0]),
+                "probabilities": np.array([0.5]),
+                "baseline_sharpe": 0.0,
+            }
+
+        # Compute per-fill returns: (fill_price - order_price) / order_price * direction
+        returns = []
+        predictions = []
+        actuals = []
+        for f in fills:
+            ret = (f.fill_price - f.order_price) / max(f.order_price, 1e-10)
+            ret *= f.direction  # +1 for long, -1 for short
+            returns.append(ret)
+            # direction=+1 means we predicted up (1), direction=-1 means down (0)
+            predictions.append(1 if f.direction > 0 else 0)
+            # actual: was the fill profitable?
+            actuals.append(1 if ret > 0 else 0)
+
+        returns_arr = np.array(returns)
+        mean_ret = float(np.mean(returns_arr))
+        std_ret = float(np.std(returns_arr)) if len(returns_arr) > 1 else 1.0
+        sharpe = mean_ret / max(std_ret, 1e-10)
+
+        return {
+            "recent_returns": returns_arr,
+            "predictions": np.array(predictions),
+            "actuals": np.array(actuals),
+            "probabilities": np.full(len(predictions), 0.5),
+            "baseline_sharpe": sharpe,
+        }
 
     async def run_reconciliation(
         self, symbol: str | None = None

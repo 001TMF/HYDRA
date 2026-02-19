@@ -323,6 +323,12 @@ async def test_runner_daily_cycle_mock() -> None:
 
     reconciler = MagicMock()
 
+    feature_assembler = MagicMock()
+    feature_assembler.FEATURE_NAMES = [f"f{i}" for i in range(17)]
+    feature_assembler.assemble_at = MagicMock(
+        return_value={f"f{i}": float(i) for i in range(17)}
+    )
+
     runner = PaperTradingRunner(
         broker=broker,
         risk_gate=risk_gate,
@@ -331,9 +337,18 @@ async def test_runner_daily_cycle_mock() -> None:
         agent_loop=agent_loop,
         model=model,
         reconciler=reconciler,
+        feature_assembler=feature_assembler,
     )
 
-    result = await runner.run_daily_cycle()
+    market_snapshot = {
+        "mid_price": 350.0,
+        "spread": 0.25,
+        "adv": 500.0,
+        "volatility": 0.02,
+        "contract": MagicMock(),
+    }
+    with patch.object(runner, "_fetch_market_snapshot", new_callable=AsyncMock, return_value=market_snapshot):
+        result = await runner.run_daily_cycle()
 
     # Verify broker connection was checked
     broker.is_connected.assert_called()
