@@ -115,12 +115,15 @@ Plans:
   4. Risk management runs as mandatory middleware in the execution path, not an optional check
   5. System completes 4+ weeks of stable paper trading with at least one successful self-healing cycle (agent detects degradation, diagnoses, proposes fix, tests, promotes improvement that lasts 30+ days)
 **Validation Gate**: 4+ weeks paper trading with stable or improving performance AND at least one successful autonomous self-healing cycle before any live capital.
-**Research Flag**: ib_insync maintenance status must be verified before committing. If unmaintained, evaluate ib-async (community fork) or plan a custom wrapper around ibapi.
-**Plans**: TBD
+**Research Flag**: ib_insync maintenance status must be verified before committing. If unmaintained, evaluate ib-async (community fork) or plan a custom wrapper around ibapi. **RESOLVED**: Use `ib_async` 2.1.0, the actively maintained successor to `ib_insync`.
+**Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md -- BrokerGateway (ib_async wrapper) + RiskGate (mandatory pre-trade middleware)
+- [ ] 05-02-PLAN.md -- OrderManager smart routing (limit-patience + custom TWAP for thin markets)
+- [ ] 05-03-PLAN.md -- FillJournal (SQLite fill logging) + SlippageReconciler (predicted vs actual)
+- [ ] 05-04-PLAN.md -- PaperTradingRunner (daily cycle orchestrator) + CLI extensions
+- [ ] 05-05-PLAN.md -- Integration tests + IB connectivity verification checkpoint
 
 ## Progress
 
