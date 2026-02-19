@@ -1,8 +1,10 @@
 # HYDRA
 
-**Autonomous trading model improvement system for thin commodity futures markets.**
+**Heuristic Yield-Driven Recursive Agent**
 
-HYDRA detects when its own trading model degrades, diagnoses root causes, generates and tests improvement hypotheses, and promotes better models — all without human intervention. It exploits the divergence between options-implied market expectations and CFTC sentiment positioning in thin commodity markets where institutional quants don't compete.
+*Cut off one head (model breaks), two grow back (self-healing).*
+
+An autonomous trading model improvement system for thin commodity futures markets. HYDRA detects when its own trading model degrades, diagnoses root causes, generates and tests improvement hypotheses, and promotes better models -- all without human intervention. It exploits the divergence between options-implied market expectations and CFTC sentiment positioning in thin commodity markets where institutional quants don't compete.
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -12,47 +14,100 @@ HYDRA detects when its own trading model degrades, diagnoses root causes, genera
 
 ## Architecture
 
-```
-                          HYDRA System Architecture
-  ======================================================================
+```mermaid
+graph TB
+    subgraph DATA["DATA LAYER"]
+        D1[Futures OHLCV]
+        D2[Options Chains]
+        D3[COT Reports]
+        D4[Parquet Lake<br/><i>Append-only, Hive partitioned</i>]
+        D5[Feature Store<br/><i>Point-in-time correct</i>]
+        D6[Options Math<br/><i>SVI Surface / B-L Density / Greeks</i>]
+    end
 
-  DATA LAYER                 SIGNAL LAYER              MODEL LAYER
-  ----------------          ----------------          ----------------
-  | Futures OHLCV |         | COT Sentiment |         | LightGBM     |
-  | Options Chain |-------->| [-1, +1] Score|-------->| Baseline     |
-  | COT Reports   |         |               |         | (Binary)     |
-  ----------------          ----------------          ----------------
-        |                         |                         |
-        v                         v                         v
-  ----------------          ----------------          ----------------
-  | Parquet Lake  |         | Divergence    |         | Walk-Forward |
-  | Feature Store |         | Detector      |         | Backtest     |
-  | (Point-in-Time|         | (6-Type       |         | (Purged CV)  |
-  |  Correct)     |         |  Taxonomy)    |         |              |
-  ----------------          ----------------          ----------------
-        |                         |                         |
-        v                         v                         v
-  ----------------          ----------------          ----------------
-  | Options Math  |         | Implied vs.   |         | Risk Stack   |
-  | SVI Surface   |         | Sentiment     |         | Slippage     |
-  | B-L Density   |         | Mismatch      |         | Kelly Sizing |
-  | Greeks Flows  |         | Signal        |         | Breakers     |
-  ----------------          ----------------          ----------------
-                                    |
-                                    v
-                    ================================
-                    |   SELF-HEALING AGENT LOOP    |
-                    |   (Phase 4 - In Progress)    |
-                    |                              |
-                    |  Observe --> Diagnose -->    |
-                    |  Hypothesize --> Experiment  |
-                    |  --> Evaluate --> Promote    |
-                    ================================
+    subgraph SIGNAL["SIGNAL LAYER"]
+        S1[COT Sentiment<br/><i>Score: -1 to +1</i>]
+        S2[Divergence Detector<br/><i>6-type taxonomy</i>]
+        S3[Implied vs Sentiment<br/><i>Mismatch signal</i>]
+    end
+
+    subgraph MODEL["MODEL LAYER"]
+        M1[LightGBM Baseline<br/><i>Binary classifier</i>]
+        M2[Walk-Forward Backtest<br/><i>Purged CV + embargo</i>]
+        M3[Risk Stack<br/><i>Slippage / Kelly / Breakers</i>]
+    end
+
+    subgraph AGENT["SELF-HEALING AGENT LOOP"]
+        A1([Observe]) --> A2([Diagnose])
+        A2 --> A3([Hypothesize])
+        A3 --> A4([Experiment])
+        A4 --> A5([Evaluate])
+        A5 --> A6([Promote])
+        A6 -.-> A1
+    end
+
+    D1 & D2 & D3 --> D4 --> D5
+    D2 --> D6
+    D5 --> S1 & D6
+    S1 & D6 --> S2 --> S3
+    S3 --> M1 --> M2
+    M2 --> M3
+    M3 --> AGENT
+
+    style DATA fill:#1a1a2e,stroke:#16213e,color:#e0e0e0
+    style SIGNAL fill:#0f3460,stroke:#16213e,color:#e0e0e0
+    style MODEL fill:#533483,stroke:#16213e,color:#e0e0e0
+    style AGENT fill:#e94560,stroke:#16213e,color:#e0e0e0
+```
+
+### Self-Healing Loop
+
+The core of HYDRA -- when the model degrades, the agent loop kicks in:
+
+```mermaid
+flowchart LR
+    A[Model Performance<br/>Drops] -->|Drift detected| B[Diagnose<br/>Root Cause]
+    B -->|Feature drift?<br/>Regime change?<br/>Data issue?| C[Generate<br/>Hypotheses]
+    C -->|Mutate features<br/>Retune params<br/>Swap model| D[Run Sandboxed<br/>Experiment]
+    D -->|Walk-forward<br/>backtest| E{Fitness<br/>Improved?}
+    E -->|Yes| F[Promote to<br/>Champion]
+    E -->|No| C
+    F -->|Continue monitoring| A
+
+    style A fill:#e94560,stroke:#333,color:#fff
+    style F fill:#2ecc71,stroke:#333,color:#fff
+```
+
+### Divergence Signal Flow
+
+How HYDRA detects and classifies options-sentiment divergences:
+
+```mermaid
+flowchart TD
+    OPT[Options Chain] --> SVI[SVI Surface<br/>Calibration]
+    SVI --> BL[Breeden-Litzenberger<br/>Implied Density]
+    BL --> MOM[Implied Moments<br/><i>mean, var, skew, kurt</i>]
+
+    COT[CFTC COT Report] --> SENT[Sentiment Score<br/><i>52-week percentile rank</i>]
+
+    MOM --> DIV{Divergence<br/>Classifier}
+    SENT --> DIV
+
+    DIV --> |Bullish Div| LONG[Long Signal]
+    DIV --> |Bearish Div| SHORT[Short Signal]
+    DIV --> |Overreaction| FADE[Fade Sentiment]
+    DIV --> |Early Signal| EARLY[Early Entry]
+    DIV --> |Trend Follow| TREND[Follow Trend]
+    DIV --> |Vol Play| VOL[Volatility Position]
+
+    style DIV fill:#e94560,stroke:#333,color:#fff
+    style LONG fill:#2ecc71,stroke:#333,color:#fff
+    style SHORT fill:#e74c3c,stroke:#333,color:#fff
 ```
 
 ## The Core Thesis
 
-Options markets encode forward-looking expectations through implied distributions. CFTC positioning data reveals crowd sentiment with a known lag. When these two signals diverge, one of them is wrong — and options markets are right more often in thin commodity markets where positioning data reflects a small number of large players.
+Options markets encode forward-looking expectations through implied distributions. CFTC positioning data reveals crowd sentiment with a known lag. When these two signals diverge, one of them is wrong -- and options markets are right more often in thin commodity markets where positioning data reflects a small number of large players.
 
 HYDRA classifies these divergences into 6 types and trades accordingly:
 
@@ -161,12 +216,12 @@ src/hydra/
 
 ## Key Design Decisions
 
-- **LLM never touches the prediction hot path** — it proposes hypotheses, deterministic code executes them
-- **Volume-adaptive slippage, not fixed** — square-root impact model mandatory for thin markets
-- **Walk-forward with embargo gaps** — no random cross-validation on time series, ever
-- **Fractional Kelly (half-Kelly)** — aggressive Kelly sizing is mathematically optimal but practically suicidal
-- **Circuit breakers with cooldown** — ACTIVE -> TRIGGERED -> COOLDOWN -> ACTIVE state machine prevents permanent halts
-- **No hyperparameter tuning in baseline** — conservative defaults only; tuning belongs in the experiment loop
+- **LLM never touches the prediction hot path** -- it proposes hypotheses, deterministic code executes them
+- **Volume-adaptive slippage, not fixed** -- square-root impact model mandatory for thin markets
+- **Walk-forward with embargo gaps** -- no random cross-validation on time series, ever
+- **Fractional Kelly (half-Kelly)** -- aggressive Kelly sizing is mathematically optimal but practically suicidal
+- **Circuit breakers with cooldown** -- ACTIVE -> TRIGGERED -> COOLDOWN -> ACTIVE state machine prevents permanent halts
+- **No hyperparameter tuning in baseline** -- conservative defaults only; tuning belongs in the experiment loop
 
 ## Contributing
 
@@ -192,11 +247,11 @@ Contributions are welcome! HYDRA is an ambitious project and there's plenty to w
 
 ### Development Guidelines
 
-- **Tests required** — every new module needs tests. TDD preferred (write tests first).
-- **No new files without reuse analysis** — check if existing code can be extended first.
-- **Type hints** — use them on public APIs.
-- **Keep it simple** — no over-engineering. If three lines of code work, don't write an abstraction.
-- **Respect the dependency chain** — Phase N modules only import from Phase N and earlier.
+- **Tests required** -- every new module needs tests. TDD preferred (write tests first).
+- **No new files without reuse analysis** -- check if existing code can be extended first.
+- **Type hints** -- use them on public APIs.
+- **Keep it simple** -- no over-engineering. If three lines of code work, don't write an abstraction.
+- **Respect the dependency chain** -- Phase N modules only import from Phase N and earlier.
 
 ### Areas for Contribution
 
