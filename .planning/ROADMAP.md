@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Infrastructure + Options Math Engine** - Ingestion pipelines, feature store, and options math that extract computable signals from thin-market data
 - [x] **Phase 2: Signal Layer + Baseline Model** - Divergence signal construction, baseline ML model, and walk-forward thesis validation
-- [ ] **Phase 3: Sandbox + Experiment Infrastructure** - Market replay, model registry, experiment journal, observer, evaluator, and CLI for safe experimentation
+- [x] **Phase 3: Sandbox + Experiment Infrastructure** - Market replay, model registry, experiment journal, observer, evaluator, and CLI for safe experimentation
 - [ ] **Phase 4: Agent Core + LLM Integration** - Full autonomous agent loop with LLM-powered diagnosis, hypothesis generation, and self-healing capability
 - [ ] **Phase 5: Execution + Hardening** - IB paper trading pipeline, order management, risk middleware, and 4+ week live validation
 
@@ -75,12 +75,12 @@ Plans:
 **Plans**: 6 plans in 2 waves
 
 Plans:
-- [ ] 03-01-PLAN.md -- Market replay engine with volume-adaptive slippage
+- [x] 03-01-PLAN.md -- Market replay engine with volume-adaptive slippage
 - [x] 03-02-PLAN.md -- MLflow model registry with champion/candidate/archived lifecycle
-- [ ] 03-03-PLAN.md -- Experiment journal with SQLite storage and query layer
-- [ ] 03-04-PLAN.md -- Drift detectors (PSI, KS, CUSUM, ADWIN) + DriftObserver
-- [ ] 03-05-PLAN.md -- Composite fitness evaluator with 6-metric weighted scoring
-- [ ] 03-06-PLAN.md -- Typer CLI with Rich formatting (status, diagnose, rollback, pause/run, journal)
+- [x] 03-03-PLAN.md -- Experiment journal with SQLite storage and query layer
+- [x] 03-04-PLAN.md -- Drift detectors (PSI, KS, CUSUM, ADWIN) + DriftObserver
+- [x] 03-05-PLAN.md -- Composite fitness evaluator with 6-metric weighted scoring
+- [x] 03-06-PLAN.md -- Typer CLI with Rich formatting (status, diagnose, rollback, pause/run, journal)
 
 ### Phase 4: Agent Core + LLM Integration
 **Goal**: The full observe-diagnose-hypothesize-experiment-evaluate agent loop runs autonomously, using LLM-powered reasoning with deterministic guardrails, and can detect degradation, diagnose root causes, propose fixes, test them, and promote improvements without human intervention

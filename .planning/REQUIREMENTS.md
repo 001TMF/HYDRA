@@ -62,12 +62,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CLI Interface
 
-- [ ] **CLI-01**: `status` command shows model health, active experiments, alerts, current autonomy level
-- [ ] **CLI-02**: `diagnose` command forces a diagnostic cycle on the current champion model
-- [ ] **CLI-03**: `rollback` command reverts to previous champion model
-- [ ] **CLI-04**: `pause` / `run` commands halt and resume the agent loop
-- [ ] **CLI-05**: `journal query` command searches experiment history by tag, date, mutation type
-- [ ] **CLI-06**: CLI uses Rich-formatted terminal output with tables, colored alerts, and progress indicators
+- [x] **CLI-01**: `status` command shows model health, active experiments, alerts, current autonomy level
+- [x] **CLI-02**: `diagnose` command forces a diagnostic cycle on the current champion model
+- [x] **CLI-03**: `rollback` command reverts to previous champion model
+- [x] **CLI-04**: `pause` / `run` commands halt and resume the agent loop
+- [x] **CLI-05**: `journal query` command searches experiment history by tag, date, mutation type
+- [x] **CLI-06**: CLI uses Rich-formatted terminal output with tables, colored alerts, and progress indicators
 
 ### Execution & Paper Trading
 
@@ -157,12 +157,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGNT-08 | Phase 4 | Pending |
 | AGNT-09 | Phase 4 | Pending |
 | AGNT-10 | Phase 4 | Pending |
-| CLI-01 | Phase 3 | Pending |
-| CLI-02 | Phase 3 | Pending |
-| CLI-03 | Phase 3 | Pending |
-| CLI-04 | Phase 3 | Pending |
-| CLI-05 | Phase 3 | Pending |
-| CLI-06 | Phase 3 | Pending |
+| CLI-01 | Phase 3 | Complete |
+| CLI-02 | Phase 3 | Complete |
+| CLI-03 | Phase 3 | Complete |
+| CLI-04 | Phase 3 | Complete |
+| CLI-05 | Phase 3 | Complete |
+| CLI-06 | Phase 3 | Complete |
 | EXEC-01 | Phase 5 | Pending |
 | EXEC-02 | Phase 5 | Pending |
 | EXEC-03 | Phase 5 | Pending |
