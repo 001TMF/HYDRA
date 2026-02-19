@@ -12,7 +12,7 @@ HYDRA builds from raw data to autonomous self-healing through a strict five-phas
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Data Infrastructure + Options Math Engine** - Ingestion pipelines, feature store, and options math that extract computable signals from thin-market data
+- [x] **Phase 1: Data Infrastructure + Options Math Engine** - Ingestion pipelines, feature store, and options math that extract computable signals from thin-market data
 - [ ] **Phase 2: Signal Layer + Baseline Model** - Divergence signal construction, baseline ML model, and walk-forward thesis validation
 - [ ] **Phase 3: Sandbox + Experiment Infrastructure** - Market replay, model registry, experiment journal, observer, evaluator, and CLI for safe experimentation
 - [ ] **Phase 4: Agent Core + LLM Integration** - Full autonomous agent loop with LLM-powered diagnosis, hypothesis generation, and self-healing capability
@@ -35,12 +35,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 6 plans in 4 waves
 
 Plans:
-- [ ] 01-01-PLAN.md -- Project scaffold, Parquet lake, feature store with lookahead prevention
-- [ ] 01-02-PLAN.md -- Futures, options, and COT ingestion pipelines
+- [x] 01-01-PLAN.md -- Project scaffold, Parquet lake, feature store with lookahead prevention
+- [x] 01-02-PLAN.md -- Futures, options, and COT ingestion pipelines
 - [x] 01-03-PLAN.md -- SVI volatility surface calibration (TDD)
-- [ ] 01-04-PLAN.md -- Breeden-Litzenberger density extraction + implied moments (TDD)
-- [ ] 01-05-PLAN.md -- Greeks flow aggregation: GEX, vanna, charm (TDD)
-- [ ] 01-06-PLAN.md -- Data quality monitoring + Phase 1 integration checkpoint
+- [x] 01-04-PLAN.md -- Breeden-Litzenberger density extraction + implied moments (TDD)
+- [x] 01-05-PLAN.md -- Greeks flow aggregation: GEX, vanna, charm (TDD)
+- [x] 01-06-PLAN.md -- Data quality monitoring + Phase 1 integration checkpoint
 
 ### Phase 2: Signal Layer + Baseline Model
 **Goal**: The divergence between options-implied expectations and sentiment signals demonstrates out-of-sample predictive power, validated through walk-forward backtesting with realistic slippage
@@ -120,7 +120,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Infrastructure + Options Math Engine | 3/6 | In Progress | - |
+| 1. Data Infrastructure + Options Math Engine | 6/6 | Complete | 2026-02-19 |
 | 2. Signal Layer + Baseline Model | 0/TBD | Not started | - |
 | 3. Sandbox + Experiment Infrastructure | 0/TBD | Not started | - |
 | 4. Agent Core + LLM Integration | 0/TBD | Not started | - |

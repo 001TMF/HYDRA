@@ -14,7 +14,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DATA-03**: System ingests CFTC Commitments of Traders (COT) reports with correct as-of/release date handling
 - [x] **DATA-04**: Feature store provides point-in-time correct queries ("what features were available at time T?") preventing lookahead bias
 - [x] **DATA-05**: Raw data persisted in Parquet format with append-only semantics
-- [ ] **DATA-06**: Data quality monitoring detects staleness, missing strikes, and anomalous values with configurable alerts
+- [x] **DATA-06**: Data quality monitoring detects staleness, missing strikes, and anomalous values with configurable alerts
 
 ### Options Math Engine
 
@@ -127,7 +127,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DATA-03 | Phase 1 | Complete |
 | DATA-04 | Phase 1 | Complete |
 | DATA-05 | Phase 1 | Complete |
-| DATA-06 | Phase 1 | Pending |
+| DATA-06 | Phase 1 | Complete |
 | OPTS-01 | Phase 1 | Complete |
 | OPTS-02 | Phase 1 | Complete |
 | OPTS-03 | Phase 1 | Complete |
