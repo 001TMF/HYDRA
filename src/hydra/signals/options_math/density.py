@@ -24,6 +24,7 @@ from typing import Optional
 
 import numpy as np
 from scipy.optimize import brentq
+from scipy.stats import norm as sp_norm
 
 from hydra.signals.options_math.surface import (
     calibrate_svi,
@@ -78,8 +79,6 @@ class ImpliedDensityResult:
 
 def _black76_call(F: float, K: float, r: float, T: float, sigma: float) -> float:
     """Black-76 call price for a single strike."""
-    from scipy.stats import norm as sp_norm
-
     sqrt_T = np.sqrt(T)
     d1 = (np.log(F / K) + 0.5 * sigma**2 * T) / (sigma * sqrt_T)
     d2 = d1 - sigma * sqrt_T
