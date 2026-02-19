@@ -8,7 +8,7 @@ An autonomous trading model improvement system for thin commodity futures market
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-82%20passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-569%20passing-brightgreen.svg)](#testing)
 
 ---
 
@@ -46,6 +46,17 @@ graph TB
         A6 -.-> A1
     end
 
+    subgraph EXEC["EXECUTION LAYER"]
+        E1[IB Gateway<br/><i>Paper / Live</i>]
+        E2[Risk Gate<br/><i>Mandatory middleware</i>]
+        E3[Order Manager<br/><i>Limit-patience + TWAP</i>]
+        E4[Fill Journal<br/><i>Slippage reconciliation</i>]
+    end
+
+    subgraph DASH["DASHBOARD"]
+        F1[FastAPI + htmx<br/><i>Read-only monitoring</i>]
+    end
+
     D1 & D2 & D3 --> D4 --> D5
     D2 --> D6
     D5 --> S1 & D6
@@ -53,11 +64,16 @@ graph TB
     S3 --> M1 --> M2
     M2 --> M3
     M3 --> AGENT
+    AGENT --> E2 --> E3 --> E1
+    E1 --> E4
+    E4 --> DASH
 
     style DATA fill:#1a1a2e,stroke:#16213e,color:#e0e0e0
     style SIGNAL fill:#0f3460,stroke:#16213e,color:#e0e0e0
     style MODEL fill:#533483,stroke:#16213e,color:#e0e0e0
     style AGENT fill:#e94560,stroke:#16213e,color:#e0e0e0
+    style EXEC fill:#1a5276,stroke:#16213e,color:#e0e0e0
+    style DASH fill:#0e6655,stroke:#16213e,color:#e0e0e0
 ```
 
 ### Self-Healing Loop
@@ -122,18 +138,23 @@ HYDRA classifies these divergences into 6 types and trades accordingly:
 
 ## Project Status
 
+All 6 phases complete. 30 plans executed across 6 phases. 569 tests passing.
+
 | Phase | Description | Status |
 |-------|------------|--------|
-| 1. Data Infrastructure | Ingestion, feature store, options math | Complete |
-| 2. Signal Layer | Divergence signals, LightGBM baseline, backtesting | Complete |
-| 3. Sandbox | Market replay, model registry, drift detection, CLI | In Progress |
-| 4. Agent Core | LLM-powered self-healing loop | Planned |
-| 5. Execution | IB paper trading, order management, risk middleware | Planned |
+| 1. Data Infrastructure | Ingestion, feature store, options math (SVI, B-L, Greeks) | Complete |
+| 2. Signal Layer | Divergence signals, LightGBM baseline, walk-forward backtesting | Complete |
+| 3. Sandbox | Market replay, model registry, drift detection, experiment journal, CLI | Complete |
+| 4. Agent Core | Autonomous self-healing loop with LLM-powered diagnosis | Complete |
+| 5. Execution | IB paper trading, order management, risk middleware | Complete |
+| 6. Dashboard | FastAPI monitoring dashboard, Docker containerisation | Complete |
 
 **Validation Gates:**
-- Phase 1: Can Breeden-Litzenberger produce stable implied distributions from thin-market options?
-- Phase 2: Does the divergence signal predict price movement OOS with Sharpe > 0 after slippage?
-- Phase 5: 4+ weeks stable paper trading with at least one successful self-healing cycle
+- **Phase 1:** Can Breeden-Litzenberger produce stable implied distributions from thin-market options?
+- **Phase 2:** Does the divergence signal predict price movement OOS with Sharpe > 0 after slippage?
+- **Phase 5:** 4+ weeks stable paper trading with at least one successful self-healing cycle
+
+**Next:** 4-week paper trading validation period before any live capital.
 
 ## Quick Start
 
@@ -157,13 +178,62 @@ uv sync
 uv run pytest tests/ -v
 ```
 
-### Project Structure
+### CLI
+
+HYDRA ships with a Typer CLI for system operation:
+
+```bash
+uv run hydra status              # System health, champion metrics, alerts
+uv run hydra diagnose            # Run drift detection on champion model
+uv run hydra rollback            # Revert champion to previous version
+uv run hydra pause               # Pause the agent loop
+uv run hydra run                 # Resume the agent loop
+uv run hydra journal             # Query experiment history
+uv run hydra paper-trade start   # Start paper trading runner
+uv run hydra fill-report         # View fills and slippage reconciliation
+uv run hydra serve               # Start monitoring dashboard
+```
+
+### Dashboard
+
+Start the read-only monitoring dashboard:
+
+```bash
+uv run hydra serve --port 8080
+```
+
+Opens a FastAPI + htmx dashboard at `http://localhost:8080` with 5 pages:
+- **Overview** -- fill count, agent state, SSE live cycle updates
+- **Fills** -- fill journal table with slippage reconciliation
+- **Agent** -- experiment history and agent loop status
+- **Drift** -- monitored metrics (Sharpe, drawdown, PSI, KS, ADWIN, CUSUM)
+- **System** -- database health, broker status, configuration
+
+All pages auto-refresh via htmx every 60 seconds.
+
+### Docker Deployment
+
+Run the full stack (HYDRA + IB Gateway) via Docker Compose:
+
+```bash
+cd docker
+cp .env.example .env
+# Edit .env with your IB credentials
+docker compose up -d
+```
+
+This starts:
+- **ib-gateway** -- headless IB Gateway ([gnzsnz/ib-gateway](https://github.com/gnzsnz/ib-gateway-docker)) on paper trading port
+- **hydra** -- dashboard + paper trading runner in a single container
+
+Dashboard available at `http://localhost:8080`. All ports bound to localhost only.
+
+## Project Structure
 
 ```
 src/hydra/
-├── data/                          # Phase 1: Data Infrastructure
+├── data/                          # Data Infrastructure
 │   ├── ingestion/
-│   │   ├── base.py                # Base ingestion pipeline
 │   │   ├── futures.py             # Futures OHLCV ingestion
 │   │   ├── options.py             # Options chain ingestion
 │   │   └── cot.py                 # CFTC COT reports
@@ -172,30 +242,73 @@ src/hydra/
 │   │   └── parquet_lake.py        # Append-only Parquet storage
 │   └── quality.py                 # Data staleness & anomaly detection
 │
-├── signals/                       # Phase 1+2: Signal Generation
+├── signals/                       # Signal Generation
 │   ├── options_math/
 │   │   ├── surface.py             # SVI volatility surface calibration
 │   │   ├── density.py             # Breeden-Litzenberger implied density
 │   │   ├── moments.py             # Implied moments (mean, var, skew, kurt)
-│   │   └── greeks.py              # Greeks flow aggregation (GEX, vanna, charm)
+│   │   └── greeks.py              # Greeks flow (GEX, vanna, charm)
 │   ├── sentiment/
 │   │   └── cot_scoring.py         # COT sentiment score [-1, +1]
 │   └── divergence/
 │       └── detector.py            # 6-type divergence taxonomy
 │
-├── model/                         # Phase 2: Model Layer
+├── model/                         # Model Layer
 │   ├── features.py                # 17-feature matrix assembler
 │   ├── baseline.py                # LightGBM binary classifier
 │   ├── walk_forward.py            # Purged walk-forward backtesting
 │   └── evaluation.py              # Backtest metrics (Sharpe, drawdown, etc.)
 │
-├── risk/                          # Phase 2: Risk Management
-│   ├── slippage.py                # Volume-adaptive square-root impact model
+├── risk/                          # Risk Management
+│   ├── slippage.py                # Volume-adaptive square-root impact
 │   ├── position_sizing.py         # Fractional Kelly + volume cap
 │   └── circuit_breakers.py        # 4-breaker state machine
 │
-├── sandbox/                       # Phase 3: Experiment Infrastructure (WIP)
-└── cli/                           # Phase 3: Operator CLI (WIP)
+├── sandbox/                       # Experiment Infrastructure
+│   ├── replay.py                  # Market replay with volume-adaptive slippage
+│   ├── registry.py                # MLflow model registry (champion/candidate)
+│   ├── journal.py                 # Experiment journal (SQLite)
+│   ├── observer.py                # DriftObserver (perf + feature drift)
+│   ├── evaluator.py               # Composite fitness scorer (6 metrics)
+│   └── drift/                     # PSI, KS, CUSUM, ADWIN detectors
+│
+├── agent/                         # Self-Healing Agent Loop
+│   ├── loop.py                    # Observe-diagnose-hypothesize-experiment-evaluate
+│   ├── diagnostician.py           # Rule-based structured triage
+│   ├── hypothesis.py              # Mutation playbook
+│   ├── experiment_runner.py       # Subprocess isolation for experiments
+│   ├── llm/
+│   │   └── client.py              # DeepSeek-R1 with fallback chain
+│   ├── autonomy.py                # Permission gating (4 levels)
+│   ├── rollback.py                # Hysteresis rollback trigger
+│   ├── promotion.py               # 3-of-5 window promotion evaluator
+│   ├── dedup.py                   # Semantic dedup (embedding similarity)
+│   └── budget.py                  # Mutation budgets & cooldowns
+│
+├── execution/                     # IB Paper Trading
+│   ├── broker.py                  # BrokerGateway (ib_async wrapper)
+│   ├── risk_gate.py               # Mandatory pre-trade circuit breakers
+│   ├── order_manager.py           # Smart routing (limit-patience + TWAP)
+│   ├── fill_journal.py            # SQLite fill logging + slippage
+│   ├── reconciler.py              # Predicted vs actual slippage
+│   └── runner.py                  # Daily cycle orchestrator (APScheduler)
+│
+├── dashboard/                     # Monitoring Dashboard
+│   ├── app.py                     # FastAPI factory + lifespan runner
+│   ├── routes/
+│   │   ├── pages.py               # 5 page routes (Jinja2)
+│   │   ├── api.py                 # JSON + htmx fragment endpoints
+│   │   └── sse.py                 # Server-sent events
+│   ├── templates/                 # Jinja2 templates (htmx auto-refresh)
+│   └── static/                    # Dark theme CSS
+│
+├── cli/                           # Operator CLI
+│   ├── app.py                     # Typer app (9 commands)
+│   ├── formatters.py              # Rich table formatting
+│   └── state.py                   # Agent state management
+│
+└── config/                        # Configuration
+    └── default.yaml               # Market definitions & thresholds
 ```
 
 ## Tech Stack
@@ -204,24 +317,50 @@ src/hydra/
 |-----------|-----------|-----|
 | Language | Python 3.11+ | Ecosystem for quant finance + ML |
 | Package Manager | uv | Fast, reliable dependency resolution |
-| ML Model | LightGBM | CPU-optimized, handles NaN natively, proven in competitions |
-| Options Math | NumPy + SciPy | SVI calibration, B-L density extraction, Greeks |
+| ML Model | LightGBM | CPU-optimized, handles NaN natively, proven |
+| Options Math | NumPy + SciPy | SVI calibration, B-L density, Greeks |
 | Data Storage | Parquet (append-only) | Columnar, fast reads, Hive partitioned |
 | Feature Store | SQLite + WAL mode | Point-in-time queries, TimescaleDB-ready schema |
 | Model Registry | MLflow | Champion/candidate lifecycle tracking |
-| CLI | Typer + Rich | Beautiful terminal output with tables and colors |
+| Drift Detection | river + SciPy | ADWIN, CUSUM, PSI, KS test |
+| Scheduling | APScheduler | Daily cycle orchestration |
 | Agent LLM | DeepSeek-R1 (via Together AI) | Structured reasoning for diagnosis + hypothesis |
+| LLM Framework | OpenAI SDK + instructor | Pydantic-validated structured output |
+| Broker API | ib-async 2.1.0 | Interactive Brokers paper/live trading |
+| CLI | Typer + Rich | Terminal output with tables and colors |
+| Dashboard | FastAPI + Jinja2 + htmx | Read-only monitoring (no SPA, no npm) |
+| Containerisation | Docker Compose | HYDRA + IB Gateway stack |
 
 **Explicitly not using:** LangChain, LangGraph, Airflow, Kubernetes, Feast, GPU infrastructure.
 
 ## Key Design Decisions
 
 - **LLM never touches the prediction hot path** -- it proposes hypotheses, deterministic code executes them
+- **Zero-cost default** -- system runs entirely rule-based; LLM is optional enhancement for ambiguous diagnosis
 - **Volume-adaptive slippage, not fixed** -- square-root impact model mandatory for thin markets
 - **Walk-forward with embargo gaps** -- no random cross-validation on time series, ever
 - **Fractional Kelly (half-Kelly)** -- aggressive Kelly sizing is mathematically optimal but practically suicidal
 - **Circuit breakers with cooldown** -- ACTIVE -> TRIGGERED -> COOLDOWN -> ACTIVE state machine prevents permanent halts
-- **No hyperparameter tuning in baseline** -- conservative defaults only; tuning belongs in the experiment loop
+- **3-of-5 promotion** -- candidate must beat champion across 3 of 5 independent evaluation windows
+- **Hysteresis rollback** -- sustained degradation triggers rollback; transient dips are tolerated
+- **Semantic dedup** -- embedding similarity > 0.85 rejects duplicate hypotheses
+- **Single process for dashboard + runner** -- SQLite WAL safety, no cross-container DB access
+- **No live capital without gate** -- 4+ weeks paper trading with successful self-healing cycle required
+
+## Testing
+
+569 tests across 47 test files covering:
+
+```bash
+# Run all tests
+uv run pytest tests/ -v
+
+# Run specific module tests
+uv run pytest tests/test_density.py -v      # Options math
+uv run pytest tests/test_walk_forward.py -v  # Backtesting
+uv run pytest tests/test_agent_loop.py -v    # Agent loop
+uv run pytest tests/test_dashboard_*.py -v   # Dashboard
+```
 
 ## Contributing
 
@@ -261,7 +400,8 @@ Contributions are welcome! HYDRA is an ambitious project and there's plenty to w
 | Market support | Medium | Extend to additional commodity futures markets |
 | Drift detectors | Easy | Add new statistical drift detection methods |
 | CLI commands | Easy | Add new Rich-formatted operator commands |
-| Documentation | Easy | Improve docstrings and usage examples |
+| Dashboard pages | Easy | New monitoring views or enhanced visualizations |
+| Multi-head agent | Hard | Competing diagnostic heads (deferred AGNT-11-18) |
 | Backtest metrics | Medium | Add new evaluation metrics to the backtest engine |
 | Performance | Hard | Optimize walk-forward engine for large datasets |
 
