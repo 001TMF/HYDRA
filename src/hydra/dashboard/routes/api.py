@@ -2,10 +2,25 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import APIRouter, Request
-from starlette.responses import JSONResponse
+from starlette.responses import HTMLResponse, JSONResponse
 
 router = APIRouter()
+
+
+def _open_fill_journal(data_dir: Path):
+    """Try to open FillJournal, return None on failure."""
+    fill_db = data_dir / "fill_journal.db"
+    if not fill_db.exists():
+        return None
+    try:
+        from hydra.execution.fill_journal import FillJournal
+
+        return FillJournal(fill_db)
+    except Exception:
+        return None
 
 
 @router.get("/health")
@@ -96,3 +111,80 @@ async def fills_summary(request: Request):
     finally:
         if fj is not None:
             fj.close()
+
+
+@router.get("/fills/recent", response_class=HTMLResponse)
+async def fills_recent(request: Request):
+    """Return HTML fragment of last 5 fills as table rows for htmx swap."""
+    data_dir = request.app.state.data_dir
+    fj = _open_fill_journal(data_dir)
+    if fj is None:
+        return HTMLResponse("<tr><td colspan='4'>No fill data available</td></tr>")
+    try:
+        recent = fj.get_fills(limit=5)
+        rows = []
+        for fill in recent:
+            direction = "BUY" if fill.direction == 1 else "SELL"
+            dir_class = "status-ok" if fill.direction == 1 else "status-alert"
+            rows.append(
+                f"<tr>"
+                f"<td>{fill.timestamp[:19]}</td>"
+                f"<td>{fill.symbol}</td>"
+                f'<td class="{dir_class}">{direction}</td>'
+                f"<td>{fill.actual_slippage:.4f}</td>"
+                f"</tr>"
+            )
+        if not rows:
+            return HTMLResponse("<tr><td colspan='4'>No fills recorded yet</td></tr>")
+        return HTMLResponse("\n".join(rows))
+    finally:
+        fj.close()
+
+
+@router.get("/agent/state", response_class=HTMLResponse)
+async def agent_state(request: Request):
+    """Return HTML fragment with agent state badge for htmx swap."""
+    from hydra.cli.state import get_state
+
+    state = get_state().value
+    if state == "running":
+        css_class = "status-ok"
+    else:
+        css_class = "status-warn"
+    return HTMLResponse(f'<span class="{css_class}">{state.upper()}</span>')
+
+
+@router.get("/system/status")
+async def system_status(request: Request):
+    """Return JSON with DB accessibility and agent state for htmx refresh."""
+    data_dir = request.app.state.data_dir
+
+    from hydra.cli.state import get_state
+
+    db_status = {"fill_journal": "unavailable", "experiment_journal": "unavailable"}
+
+    fj = _open_fill_journal(data_dir)
+    if fj is not None:
+        try:
+            db_status["fill_journal"] = "ok"
+        finally:
+            fj.close()
+
+    exp_db = data_dir / "experiment_journal.db"
+    if exp_db.exists():
+        ej = None
+        try:
+            from hydra.sandbox.journal import ExperimentJournal
+
+            ej = ExperimentJournal(exp_db)
+            db_status["experiment_journal"] = "ok"
+        except Exception:
+            pass
+        finally:
+            if ej is not None:
+                ej.close()
+
+    return {
+        "agent_state": get_state().value,
+        "db_status": db_status,
+    }
