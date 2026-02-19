@@ -19,7 +19,11 @@ dependencies = [
     "scikit-learn>=1.4",
     "mlflow>=3.9",
     "river>=0.21",
+    "typer[all]>=0.12",
 ]
+
+[project.scripts]
+hydra = "hydra.cli.app:app"
 
 [dependency-groups]
 dev = [
