@@ -17,6 +17,8 @@ dependencies = [
     "cot-reports",
     "lightgbm>=4.0",
     "scikit-learn>=1.4",
+    "mlflow>=3.9",
+    "river>=0.21",
 ]
 
 [dependency-groups]
