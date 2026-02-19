@@ -215,7 +215,9 @@ class TestComputeGreeksFlow:
         chain = _make_chain(strikes, call_ivs, put_ivs, call_oi, put_oi,
                             [T, T])
 
-        result = compute_greeks_flow(chain, spot, r, multiplier)
+        # Use min_liquid_strikes=2 to bypass degradation for this unit test
+        result = compute_greeks_flow(chain, spot, r, multiplier,
+                                     min_liquid_strikes=2)
 
         # Hand-calculate expected GEX
         expected_gex = 0.0
@@ -436,7 +438,9 @@ class TestComputeGreeksFlow:
         chain = _make_chain(strikes, call_ivs, put_ivs, call_oi, put_oi,
                             [T, T])
 
-        result = compute_greeks_flow(chain, spot, r, multiplier)
+        # Use min_liquid_strikes=2 to bypass degradation for this unit test
+        result = compute_greeks_flow(chain, spot, r, multiplier,
+                                     min_liquid_strikes=2)
 
         # Hand-calculate expected vanna flow
         expected_vanna = 0.0
@@ -465,7 +469,9 @@ class TestComputeGreeksFlow:
         chain = _make_chain(strikes, call_ivs, put_ivs, call_oi, put_oi,
                             [T, T])
 
-        result = compute_greeks_flow(chain, spot, r, multiplier)
+        # Use min_liquid_strikes=2 to bypass degradation for this unit test
+        result = compute_greeks_flow(chain, spot, r, multiplier,
+                                     min_liquid_strikes=2)
 
         # Hand-calculate expected charm flow
         expected_charm = 0.0
