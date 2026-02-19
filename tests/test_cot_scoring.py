@@ -133,20 +133,24 @@ class TestCOTSentimentScoring:
         history = _make_history(52)
         oi_history = _make_oi_history(52)
 
+        # Hold OI constant at the median so oi_rank is identical for both;
+        # only the concentration component (abs(net)/oi) varies.
+        fixed_oi = 100000.0
+
         # Low concentration: small net position relative to OI
         result_low = compute_cot_sentiment(
             managed_money_net=100.0,
             producer_net=-50.0,
-            total_oi=150000.0,  # large OI, small net => low concentration
+            total_oi=fixed_oi,
             history_managed=history,
             history_oi=oi_history,
         )
 
-        # High concentration: large net position relative to OI
+        # High concentration: large net position relative to same OI
         result_high = compute_cot_sentiment(
             managed_money_net=4000.0,
             producer_net=-2000.0,
-            total_oi=10000.0,  # small OI, large net => high concentration
+            total_oi=fixed_oi,
             history_managed=history,
             history_oi=oi_history,
         )
