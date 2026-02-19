@@ -32,7 +32,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Model Layer
 
-- [ ] **MODL-01**: LightGBM baseline model trained on divergence + feature store features produces directional predictions
+- [x] **MODL-01**: LightGBM baseline model trained on divergence + feature store features produces directional predictions
 - [ ] **MODL-02**: Walk-forward backtesting with expanding/rolling window and embargo gaps validates model out-of-sample
 - [x] **MODL-03**: Fractional Kelly position sizing caps positions at configurable fraction of average daily volume
 - [x] **MODL-04**: Circuit breakers halt trading on max daily loss, max drawdown, max position size, or max single-trade loss thresholds
@@ -136,7 +136,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SGNL-01 | Phase 2 | Complete |
 | SGNL-02 | Phase 2 | Complete |
 | SGNL-03 | Phase 2 | Complete |
-| MODL-01 | Phase 2 | Pending |
+| MODL-01 | Phase 2 | Complete |
 | MODL-02 | Phase 2 | Pending |
 | MODL-03 | Phase 2 | Complete |
 | MODL-04 | Phase 2 | Complete |

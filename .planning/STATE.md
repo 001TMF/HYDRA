@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2 of 5 (Signal Layer + Baseline Model)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Executing
-Last activity: 2026-02-19 -- Completed 02-03-PLAN.md
+Last activity: 2026-02-19 -- Completed 02-04-PLAN.md
 
-Progress: [######----] 60% (Phase 2)
+Progress: [########--] 80% (Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 5min
-- Total execution time: 0.8 hours
+- Total execution time: 0.9 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 36min | 6min |
-| 02 | 3 | 12min | 4min |
+| 02 | 4 | 18min | 4.5min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (7min), 01-06 (8min), 02-01 (2min), 02-02 (3min), 02-03 (7min)
+- Last 5 plans: 01-06 (8min), 02-01 (2min), 02-02 (3min), 02-03 (7min), 02-04 (6min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -71,6 +71,9 @@ Recent decisions affecting current work:
 - [02-03]: Configurable module-level threshold constants for all classification rules
 - [02-03]: Z-scoring requires minimum 10 historical divergence values; falls back to raw magnitude
 - [02-03]: Degraded quality applies 0.5 confidence penalty factor; None implied_mean returns neutral
+- [02-04]: Divergence + sentiment features computed live in assemble_at() rather than pre-stored in feature store
+- [02-04]: LightGBM conservative defaults: num_leaves=31, lr=0.1, n_estimators=100 -- no tuning in Phase 2
+- [02-04]: NaN preservation for LightGBM native NaN handling -- missing features passed as NaN, not imputed
 
 ### Pending Todos
 
@@ -84,6 +87,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 02-03-PLAN.md (Divergence detector: 6-type taxonomy classification)
+Stopped at: Completed 02-04-PLAN.md (Feature engineering + LightGBM baseline model)
 Resume file: None
-Next: 02-04-PLAN.md
+Next: 02-05-PLAN.md
