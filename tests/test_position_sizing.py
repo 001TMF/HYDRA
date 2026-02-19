@@ -28,6 +28,7 @@ class TestFractionalKelly:
             avg_win=2.0,
             avg_loss=1.0,
             fraction=0.5,
+            max_position_pct=1.0,  # uncapped to test formula
         )
         assert result == pytest.approx(0.2)
 
@@ -63,6 +64,7 @@ class TestFractionalKelly:
             avg_win=1.5,
             avg_loss=1.0,
             fraction=1.0,
+            max_position_pct=1.0,  # uncapped to test formula
         )
         assert result == pytest.approx(0.25)
 
