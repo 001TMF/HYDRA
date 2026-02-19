@@ -49,6 +49,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Agent Core
 
+#### Single-Head Agent Loop (Foundation)
 - [ ] **AGNT-01**: Agent runs full observe -> diagnose -> hypothesize -> experiment -> evaluate loop autonomously
 - [ ] **AGNT-02**: Diagnostician performs structured triage (data audit, SHAP attribution, regime check, overfitting test) before proposing fixes
 - [ ] **AGNT-03**: Hypothesis engine proposes mutations from curated playbook matched to diagnosed root causes
@@ -59,6 +60,16 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **AGNT-08**: Candidate must beat champion on composite fitness across 3 of 5 independent evaluation windows for promotion
 - [ ] **AGNT-09**: Mutation budgets, semantic deduplication, and cooldowns prevent degenerate experiment loops
 - [ ] **AGNT-10**: System operates in degraded mode (rule-based fallbacks) when LLM is unavailable
+
+#### Multi-Head Architecture (Arena)
+- [ ] **AGNT-11**: Head Coordinator dispatches diagnosis results to multiple specialized heads and collects competing hypotheses
+- [ ] **AGNT-12**: Technical Head mutates hyperparameters, features, and model architecture from the existing playbook (wraps AGNT-03)
+- [ ] **AGNT-13**: Research Head discovers new data signals (congressional trades, macro cycles, seasonal patterns) via web search and proposes new data streams as toolkit expansions
+- [ ] **AGNT-14**: Structural Head proposes ensemble methods, alternative prediction targets, and feature interaction engineering
+- [ ] **AGNT-15**: Arena tournament ranks competing hypotheses from all heads through the sandbox replay engine, with top-K advancing to full evaluation
+- [ ] **AGNT-16**: Proposal system allows heads to propose toolkit expansions (new data streams, new feature types) that must prove value through sandbox testing before permanent integration
+- [ ] **AGNT-17**: Head reputation scoring tracks each head's promotion success rate; heads with higher success rates receive larger mutation budgets and run more frequently
+- [ ] **AGNT-18**: Head scheduling runs Technical Head every cycle, Research Head weekly, Structural Head monthly to balance token cost vs exploration breadth
 
 ### CLI Interface
 
@@ -87,6 +98,14 @@ Deferred to future release. Tracked but not in current roadmap.
 - **ESIG-02**: Semantic journal query via LLM-powered natural language search
 - **ESIG-03**: Social sentiment integration (Twitter/Reddit) with noise filtering
 
+### Research Head Data Sources (Discoverable by AGNT-13)
+
+- **RSRC-01**: Congressional trading data (Senate STOCK Act disclosures) -- committee members trading commodity-related assets before reports
+- **RSRC-02**: Commodity supercycle detection (3-7 year, 10-year, 50-year cycles) via historical price decomposition
+- **RSRC-03**: Seasonal pattern extraction (planting/harvest, weather, El Nino/La Nina cycles) for agricultural commodities
+- **RSRC-04**: Macro regime indicators (interest rate cycles, dollar strength index, yield curve) as conditioning features
+- **RSRC-05**: USDA report calendar and surprise detection (actual vs consensus) as event-driven signals
+
 ### Advanced Sandbox
 
 - **ASBX-01**: Synthetic data generator (copula-based with parameterized stress scenarios)
@@ -113,7 +132,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Complex Options Strategies | HYDRA reads options for signals; trades futures for positions |
 | GPU-Dependent Infrastructure | LightGBM is CPU-optimized; single-market data volume doesn't warrant GPU |
 | Kubernetes/Cloud | Single developer, single market, single machine; Docker Compose for DB only |
-| Automated Strategy Discovery | The divergence thesis IS the strategy; unbounded search produces spurious results |
+| Unbounded Strategy Discovery | Multi-head research is bounded by the divergence thesis; heads propose enhancements to the existing strategy, not entirely new strategies. Unbounded search produces spurious results |
 | LangChain/LangGraph | Agent loop is a fixed state machine; direct API calls via openai package |
 
 ## Traceability
@@ -157,6 +176,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGNT-08 | Phase 4 | Pending |
 | AGNT-09 | Phase 4 | Pending |
 | AGNT-10 | Phase 4 | Pending |
+| AGNT-11 | Phase 4 | Pending |
+| AGNT-12 | Phase 4 | Pending |
+| AGNT-13 | Phase 4 | Pending |
+| AGNT-14 | Phase 4 | Pending |
+| AGNT-15 | Phase 4 | Pending |
+| AGNT-16 | Phase 4 | Pending |
+| AGNT-17 | Phase 4 | Pending |
+| AGNT-18 | Phase 4 | Pending |
 | CLI-01 | Phase 3 | Complete |
 | CLI-02 | Phase 3 | Complete |
 | CLI-03 | Phase 3 | Complete |
@@ -170,8 +197,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-05 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 46 total
-- Mapped to phases: 46
+- v1 requirements: 54 total
+- Mapped to phases: 54
 - Unmapped: 0
 
 ---
