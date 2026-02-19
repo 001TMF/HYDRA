@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Signal Layer + Baseline Model** - Divergence signal construction, baseline ML model, and walk-forward thesis validation
 - [x] **Phase 3: Sandbox + Experiment Infrastructure** - Market replay, model registry, experiment journal, observer, evaluator, and CLI for safe experimentation
 - [x] **Phase 4: Agent Core + LLM Integration** - Full autonomous agent loop with LLM-powered diagnosis, hypothesis generation, and self-healing capability
-- [ ] **Phase 5: Execution + Hardening** - IB paper trading pipeline, order management, risk middleware, and 4+ week live validation
+- [x] **Phase 5: Execution + Hardening** - IB paper trading pipeline, order management, risk middleware, and 4+ week live validation
 
 ## Phase Details
 
@@ -119,11 +119,11 @@ Plans:
 **Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 05-01-PLAN.md -- BrokerGateway (ib_async wrapper) + RiskGate (mandatory pre-trade middleware)
-- [ ] 05-02-PLAN.md -- OrderManager smart routing (limit-patience + custom TWAP for thin markets)
-- [ ] 05-03-PLAN.md -- FillJournal (SQLite fill logging) + SlippageReconciler (predicted vs actual)
-- [ ] 05-04-PLAN.md -- PaperTradingRunner (daily cycle orchestrator) + CLI extensions
-- [ ] 05-05-PLAN.md -- Integration tests + IB connectivity verification checkpoint
+- [x] 05-01-PLAN.md -- BrokerGateway (ib_async wrapper) + RiskGate (mandatory pre-trade middleware)
+- [x] 05-02-PLAN.md -- OrderManager smart routing (limit-patience + custom TWAP for thin markets)
+- [x] 05-03-PLAN.md -- FillJournal (SQLite fill logging) + SlippageReconciler (predicted vs actual)
+- [x] 05-04-PLAN.md -- PaperTradingRunner (daily cycle orchestrator) + CLI extensions
+- [x] 05-05-PLAN.md -- Integration tests + IB connectivity verification checkpoint
 
 ## Progress
 
@@ -136,4 +136,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Signal Layer + Baseline Model | 5/5 | Complete    | 2026-02-19 |
 | 3. Sandbox + Experiment Infrastructure | 0/6 | Complete    | 2026-02-19 |
 | 4. Agent Core + LLM Integration (Single-Head) | 5/5 | Complete    | 2026-02-19 |
-| 5. Execution + Hardening | 0/TBD | Not started | - |
+| 5. Execution + Hardening | 5/5 | Complete    | 2026-02-19 |
