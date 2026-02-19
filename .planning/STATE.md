@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 6 of 6 (Dashboard + Monitoring + Containerisation)
-Plan: 2 of 4 in current phase
-Status: Executing Phase 6 -- Docker containerisation complete
-Last activity: 2026-02-19 -- Docker Compose stack created (Dockerfile, compose, .env.example, .dockerignore)
+Plan: 3 of 4 in current phase
+Status: Executing Phase 6 -- Dashboard pages and lifespan runner complete
+Last activity: 2026-02-20 -- 5 dashboard pages, htmx auto-refresh, PaperTradingRunner lifespan integration
 
-Progress: [#####-----] 50% (Phase 6: 2/4 plans)
+Progress: [########--] 75% (Phase 6: 3/4 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
+- Total plans completed: 30
 - Average duration: 4min
 - Total execution time: 1.87 hours
 
@@ -52,6 +52,7 @@ Progress: [#####-----] 50% (Phase 6: 2/4 plans)
 | Phase 05 P05 | 8min | 3 tasks | 2 files |
 | Phase 06 P01 | 5min | 2 tasks | 11 files |
 | Phase 06 P02 | 4min | 2 tasks | 5 files |
+| Phase 06 P03 | 5min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -154,6 +155,9 @@ Recent decisions affecting current work:
 - [06-02]: gnzsnz/ib-gateway:stable for headless IB Gateway containerisation
 - [06-02]: Internal port 4004 for paper trading between Docker containers
 - [06-02]: Named volumes for data persistence; dashboard bound to 127.0.0.1 only
+- [06-03]: Graceful DB fallback helpers return None on failure -- dashboard shows "No data" instead of crashing
+- [06-03]: HYDRA_START_RUNNER env var activates runner without changing create_app call signature
+- [06-03]: Runner construction failures caught in lifespan -- dashboard starts even if IB Gateway unavailable
 
 ### Roadmap Evolution
 
@@ -171,9 +175,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 06-01-PLAN.md
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None
-Next: Continue Phase 6 execution (06-03, 06-04)
+Next: Execute 06-04 (tests + CLI serve command)
 
 ## Milestone v1 Summary
 
