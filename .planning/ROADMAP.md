@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [ ] 01-01-PLAN.md -- Project scaffold, Parquet lake, feature store with lookahead prevention
 - [ ] 01-02-PLAN.md -- Futures, options, and COT ingestion pipelines
-- [ ] 01-03-PLAN.md -- SVI volatility surface calibration (TDD)
+- [x] 01-03-PLAN.md -- SVI volatility surface calibration (TDD)
 - [ ] 01-04-PLAN.md -- Breeden-Litzenberger density extraction + implied moments (TDD)
 - [ ] 01-05-PLAN.md -- Greeks flow aggregation: GEX, vanna, charm (TDD)
 - [ ] 01-06-PLAN.md -- Data quality monitoring + Phase 1 integration checkpoint
@@ -120,7 +120,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Infrastructure + Options Math Engine | 0/6 | Planned | - |
+| 1. Data Infrastructure + Options Math Engine | 3/6 | In Progress | - |
 | 2. Signal Layer + Baseline Model | 0/TBD | Not started | - |
 | 3. Sandbox + Experiment Infrastructure | 0/TBD | Not started | - |
 | 4. Agent Core + LLM Integration | 0/TBD | Not started | - |

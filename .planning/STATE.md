@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 1 of 5 (Data Infrastructure + Options Math Engine)
-Plan: 1 of 6 in current phase
+Plan: 4 of 6 in current phase
 Status: Executing
-Last activity: 2026-02-19 -- Completed 01-01-PLAN.md
+Last activity: 2026-02-19 -- Completed 01-03-PLAN.md
 
-Progress: [#.........] 10%
+Progress: [###.......] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 7min
-- Total execution time: 0.1 hours
+- Total plans completed: 3
+- Average duration: 5min
+- Total execution time: 0.3 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 1 | 7min | 7min |
+| 01 | 3 | 13min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (7min)
-- Trend: Starting
+- Last 5 plans: 01-01 (7min), 01-02 (3min), 01-03 (3min)
+- Trend: Accelerating
 
 *Updated after each plan completion*
 
@@ -47,6 +47,9 @@ Recent decisions affecting current work:
 - [01-01]: SQLite with WAL mode for Phase 1 feature store; schema designed for TimescaleDB migration
 - [01-01]: Hive partitioning by data_type/market/year/month for Parquet lake
 - [01-01]: UUID-based unique file naming for append-only Parquet semantics
+- [01-03]: L-BFGS-B with ftol=1e-14 and maxiter=1000 for robust SVI convergence on sparse data
+- [01-03]: Sparse data produces warnings rather than errors (< 8 strikes), per OPTS-05 graceful degradation
+- [01-03]: Pure NumPy/SciPy for SVI -- no QuantLib needed
 
 ### Pending Todos
 
@@ -60,5 +63,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 01-01-PLAN.md (data foundation: Parquet lake + feature store)
+Stopped at: Completed 01-03-PLAN.md (SVI volatility surface calibration)
 Resume file: None
