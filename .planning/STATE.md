@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The agent loop must reliably detect model degradation, diagnose root causes, generate and test improvement hypotheses, and promote better models -- all without human intervention.
-**Current focus:** Phase 5 Complete -- Awaiting 4-week paper trading validation period
+**Current focus:** All 5 phases complete -- IB Gateway verified, entering 4-week paper trading validation
 
 ## Current Position
 
-Phase: 5 of 5 (Execution + Hardening)
+Phase: 5 of 5 (Execution + Hardening) -- CLOSED
 Plan: 5 of 5 in current phase (ALL COMPLETE)
-Status: Phase 5 Complete -- All v1 code implemented
-Last activity: 2026-02-19 -- Completed 05-05-PLAN.md (Integration Tests + IB Connectivity Verification)
+Status: Phase 5 CLOSED -- IB Gateway connected, delayed data flowing, dry run passed 6/7
+Last activity: 2026-02-19 -- IB Gateway dry run verified (broker, contract qual, historical bars, risk gate, fill journal, reconciler)
 
 Progress: [##########] 100% (Phase 5: 5/5 plans)
 
@@ -159,6 +159,19 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 05-05-PLAN.md (Integration Tests + IB Connectivity Verification) -- Phase 5 COMPLETE
+Stopped at: Phase 5 CLOSED -- All v1 milestone code complete, IB Gateway verified
 Resume file: None
 Next: 4-week paper trading validation period (see PAPER_TRADING_PLAN.md)
+
+## Milestone v1 Summary
+
+All 5 phases complete. 26 plans executed across 5 phases in ~1.66 hours.
+
+**IB Gateway Dry Run Results (2026-02-19):**
+- BrokerGateway: Connected, Paper mode, Port 4002
+- Contract qualification: ZOK6 (ZO May '26), conId=703249611
+- Historical bars: 20 bars, ADV=145, Volatility=0.0128, close=$322.0
+- Market data: Delayed data (free) via reqMarketDataType(3), last=$322.0
+- RiskGate: Safe params allowed, risky params blocked (max_daily_loss)
+- FillJournal + Reconciler: 15 fills, bias=0.044, RMSE=0.050, corr=0.982
+- 547 unit/integration tests passing
