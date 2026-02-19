@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 5 of 5 (Execution + Hardening)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Executing Phase 5
-Last activity: 2026-02-19 -- Completed 05-01-PLAN.md (Broker Abstraction + Risk Gate)
+Last activity: 2026-02-19 -- Completed 05-03-PLAN.md (Fill Logging + Slippage Reconciliation)
 
-Progress: [##--------] 20% (Phase 5: 1/5 plans)
+Progress: [######----] 60% (Phase 5: 3/5 plans)
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Progress: [##--------] 20% (Phase 5: 1/5 plans)
 | Phase 04 P04 | 8min | 2 tasks | 7 files |
 | Phase 04 P05 | 8min | 2 tasks | 4 files |
 | Phase 05 P01 | 3min | 2 tasks | 6 files |
+| Phase 05 P02 | 3min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,10 @@ Recent decisions affecting current work:
 - [05-01]: Client ID allocation: 1=trading, 2=diagnostic, 3=CLI
 - [05-01]: Exponential backoff reconnection: 1s->2s->4s->8s max 30s, 10 attempts max
 - [05-01]: RiskGate has no submit_order passthrough -- only submit() with mandatory risk check
+- [05-02]: Module-level LimitOrder import from ib_async for testability via patch
+- [05-02]: Three-stage patience escalation: mid-price -> step toward market -> cross spread with shrinking timeouts
+- [05-02]: TWAP remainder distribution: first N slices get +1 contract (13/5 = [3,3,3,2,2])
+- [05-02]: 10x price_step_pct for spread-crossing approximation
 
 ### Pending Todos
 
@@ -140,6 +145,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 05-01-PLAN.md (Broker Abstraction + Risk Gate)
+Stopped at: Completed 05-02-PLAN.md (Order Management)
 Resume file: None
-Next: 05-02-PLAN.md (Order Management)
+Next: 05-03-PLAN.md (Fill Journal)
