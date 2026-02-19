@@ -49,3 +49,6 @@ logs/
 
 # Output
 output/
+
+# Docker runtime
+docker/data/
