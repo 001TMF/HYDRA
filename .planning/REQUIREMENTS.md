@@ -21,8 +21,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **OPTS-01**: Breeden-Litzenberger extracts risk-neutral implied probability distribution from options chain
 - [ ] **OPTS-02**: Implied moments computed from distribution (mean, variance, skew, kurtosis)
 - [x] **OPTS-03**: Volatility surface constructed across strike x expiry grid with SVI smoothing for sparse data
-- [ ] **OPTS-04**: Greeks flow aggregation computed (GEX, vanna, charm) from options chain open interest and volume
-- [ ] **OPTS-05**: Options math gracefully degrades when data quality is insufficient (< 8 liquid strikes falls back to ATM implied vol)
+- [x] **OPTS-04**: Greeks flow aggregation computed (GEX, vanna, charm) from options chain open interest and volume
+- [x] **OPTS-05**: Options math gracefully degrades when data quality is insufficient (< 8 liquid strikes falls back to ATM implied vol)
 
 ### Signal Layer
 
@@ -131,8 +131,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPTS-01 | Phase 1 | Pending |
 | OPTS-02 | Phase 1 | Pending |
 | OPTS-03 | Phase 1 | Complete |
-| OPTS-04 | Phase 1 | Pending |
-| OPTS-05 | Phase 1 | Pending |
+| OPTS-04 | Phase 1 | Complete |
+| OPTS-05 | Phase 1 | Complete |
 | SGNL-01 | Phase 2 | Pending |
 | SGNL-02 | Phase 2 | Pending |
 | SGNL-03 | Phase 2 | Pending |
