@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2 of 5 (Signal Layer + Baseline Model)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: Executing
-Last activity: 2026-02-19 -- Completed 02-01-PLAN.md
+Last activity: 2026-02-19 -- Completed 02-02-PLAN.md
 
-Progress: [##--------] 20% (Phase 2)
+Progress: [####------] 40% (Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 5min
-- Total execution time: 0.6 hours
+- Total execution time: 0.7 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 36min | 6min |
-| 02 | 1 | 2min | 2min |
+| 02 | 2 | 5min | 2.5min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (3min), 01-05 (4min), 01-04 (7min), 01-06 (8min), 02-01 (2min)
+- Last 5 plans: 01-05 (4min), 01-04 (7min), 01-06 (8min), 02-01 (2min), 02-02 (3min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -65,6 +65,8 @@ Recent decisions affecting current work:
 - [02-01]: Confidence formula: 0.6*oi_rank + 0.4*min(concentration*5, 1.0) -- weights OI magnitude over concentration
 - [02-01]: percentileofscore with default 'rank' method for percentile computation
 - [02-01]: Minimum 4 weeks history threshold for neutral fallback
+- [02-02]: upper_bound flag on CircuitBreaker distinguishes position_size breaker (>threshold) from loss breakers (<threshold)
+- [02-02]: math.sqrt for slippage scalar ops -- no numpy dependency needed
 
 ### Pending Todos
 
@@ -78,6 +80,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 02-01-PLAN.md (COT sentiment scoring)
+Stopped at: Completed 02-02-PLAN.md (Risk infrastructure: slippage, sizing, circuit breakers)
 Resume file: None
-Next: 02-02-PLAN.md
+Next: 02-03-PLAN.md
