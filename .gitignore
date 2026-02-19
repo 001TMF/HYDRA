@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+*.so
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Data (large files - not tracked in git)
+data/
+*.parquet
+*.db
+*.sqlite
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Environment / secrets
+.env
+.env.local
+*.pem
+credentials.json
+
+# Logs
+*.log
+logs/
+
+# Output
+output/
