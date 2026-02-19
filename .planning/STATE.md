@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 4 of 5 (Agent Core + LLM Integration)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: Executing Phase 4
-Last activity: 2026-02-19 -- Completed 04-02-PLAN.md (Guardrails)
+Last activity: 2026-02-19 -- Completed 04-03-PLAN.md (Diagnostician + Hypothesis Engine)
 
-Progress: [####------] 40% (Phase 4: 2/5 plans)
+Progress: [######----] 60% (Phase 4: 3/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 20
 - Average duration: 4min
 - Total execution time: 1.3 hours
 
@@ -41,6 +41,7 @@ Progress: [####------] 40% (Phase 4: 2/5 plans)
 | Phase 03 P01 | 5min | 2 tasks | 3 files |
 | Phase 03 P06 | 8min | 2 tasks | 7 files |
 | Phase 04 P02 | 4min | 2 tasks | 7 files |
+| Phase 04 P01 | 4min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,10 @@ Recent decisions affecting current work:
 - [Phase 04]: Minimum-level comparison (level >= required) for permission gating -- simpler than nested dict from research
 - [Phase 04]: Strict inequality for degradation threshold -- exactly at threshold is NOT degraded (conservative)
 - [Phase 04]: Strict inequality for promotion wins -- tied fitness does NOT count as candidate win (conservative)
+- [Phase 04]: Canonical types.py created as stub with DriftCategory/MutationType enums and DiagnosisResult/Hypothesis dataclasses -- 04-03 will extend
+- [Phase 04]: instructor.from_openai wraps OpenAI clients for Together AI and DeepSeek providers with Pydantic structured output
+- [Phase 04]: LLM schemas (Pydantic BaseModel) kept separate from core types (dataclasses) to avoid coupling agent to Pydantic
+- [Phase 04]: Token estimation uses 4 chars/token heuristic for LLM cost tracking without requiring API usage metadata
 
 ### Pending Todos
 
