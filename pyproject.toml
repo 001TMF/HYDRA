@@ -20,6 +20,10 @@ dependencies = [
     "mlflow>=3.9",
     "river>=0.21",
     "typer[all]>=0.12",
+    "sentence-transformers>=5.2.3",
+    "openai>=2.21.0",
+    "instructor>=1.14.5",
+    "tenacity>=9.1.4",
 ]
 
 [project.scripts]
