@@ -1,37 +1,118 @@
 """FastAPI dashboard application factory.
 
 Creates the HYDRA monitoring dashboard with route registration,
-Jinja2 template rendering, and static file serving.
+Jinja2 template rendering, and static file serving. Optionally
+starts the PaperTradingRunner as a FastAPI lifespan event.
 """
 
 from __future__ import annotations
 
+import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
+import structlog
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
 from hydra.dashboard.routes import api, pages, sse
 
+logger = structlog.get_logger(__name__)
 
-def create_app(data_dir: str = "~/.hydra") -> FastAPI:
+
+def _build_runner(data_dir: Path):
+    """Construct a PaperTradingRunner with all dependencies from data_dir.
+
+    Mirrors the construction logic from CLI. Returns the runner instance.
+    """
+    from hydra.agent.loop import AgentLoop
+    from hydra.execution.broker import BrokerGateway
+    from hydra.execution.fill_journal import FillJournal
+    from hydra.execution.order_manager import OrderManager
+    from hydra.execution.reconciler import SlippageReconciler
+    from hydra.execution.risk_gate import RiskGate
+    from hydra.execution.runner import PaperTradingRunner
+    from hydra.model.baseline import BaselineModel
+    from hydra.sandbox.journal import ExperimentJournal
+
+    fill_journal = FillJournal(data_dir / "fill_journal.db")
+    experiment_journal = ExperimentJournal(data_dir / "experiment_journal.db")
+
+    host = os.environ.get("IB_GATEWAY_HOST", "127.0.0.1")
+    port = int(os.environ.get("IB_GATEWAY_PORT", "4002"))
+    broker = BrokerGateway(host=host, port=port, client_id=1)
+
+    risk_gate = RiskGate(broker=broker)
+    order_manager = OrderManager(broker=broker, risk_gate=risk_gate)
+    agent_loop = AgentLoop(journal=experiment_journal)
+    model = BaselineModel()
+    reconciler = SlippageReconciler(fill_journal)
+
+    return PaperTradingRunner(
+        broker=broker,
+        risk_gate=risk_gate,
+        order_manager=order_manager,
+        fill_journal=fill_journal,
+        agent_loop=agent_loop,
+        model=model,
+        reconciler=reconciler,
+    )
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """FastAPI lifespan: start/stop PaperTradingRunner if enabled."""
+    if getattr(app.state, "start_runner", False):
+        try:
+            runner = _build_runner(app.state.data_dir)
+            await runner.start()
+            app.state.runner = runner
+            logger.info("paper_trading_runner_started_via_lifespan")
+        except Exception as exc:
+            logger.warning(
+                "paper_trading_runner_start_failed",
+                error=str(exc),
+            )
+            app.state.runner = None
+    yield
+    if hasattr(app.state, "runner") and app.state.runner is not None:
+        if app.state.runner._scheduler is not None:
+            app.state.runner._scheduler.shutdown(wait=False)
+        logger.info("paper_trading_runner_stopped")
+
+
+def create_app(
+    data_dir: str | None = None, start_runner: bool = False
+) -> FastAPI:
     """Create and configure the HYDRA Dashboard FastAPI application.
 
     Parameters
     ----------
-    data_dir : str
+    data_dir : str | None
         Path to the HYDRA data directory containing SQLite databases.
         Defaults to ``~/.hydra``. Tilde is expanded.
+    start_runner : bool
+        If True, start PaperTradingRunner as a lifespan event.
+        Also activated by ``HYDRA_START_RUNNER=true`` env var.
 
     Returns
     -------
     FastAPI
         Configured application instance.
     """
-    app = FastAPI(title="HYDRA Dashboard", docs_url=None, redoc_url=None)
+    if data_dir is None:
+        data_dir = "~/.hydra"
+
+    if not start_runner:
+        start_runner = os.environ.get("HYDRA_START_RUNNER", "").lower() == "true"
+
+    app = FastAPI(
+        title="HYDRA Dashboard", docs_url=None, redoc_url=None, lifespan=_lifespan
+    )
 
     app.state.data_dir = Path(data_dir).expanduser()
+    app.state.start_runner = start_runner
     app.state.templates = Jinja2Templates(
         directory=str(Path(__file__).parent / "templates")
     )
