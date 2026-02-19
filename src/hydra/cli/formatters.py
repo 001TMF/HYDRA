@@ -229,3 +229,110 @@ def format_rollback_result(old_version: int, new_version: int) -> Panel:
         f"  Restored champion: [green]v{new_version}[/green]\n"
     )
     return Panel(text, title="Model Rollback", border_style="yellow")
+
+
+def format_fill_table(fills: list) -> Table:
+    """Render fill records as a Rich Table.
+
+    Parameters
+    ----------
+    fills : list[FillRecord]
+        Fill records from ``FillJournal.get_fills()``.
+    """
+    table = Table(title="Fill Report", show_lines=True)
+    table.add_column("Time", style="cyan")
+    table.add_column("Symbol", style="bold")
+    table.add_column("Dir", justify="center")
+    table.add_column("Qty", justify="right")
+    table.add_column("Order Price", justify="right")
+    table.add_column("Fill Price", justify="right")
+    table.add_column("Pred Slip", justify="right")
+    table.add_column("Actual Slip", justify="right")
+    table.add_column("Latency", justify="right")
+
+    for fill in fills:
+        # Color-code direction
+        if fill.direction == 1:
+            dir_styled = "[green]BUY[/green]"
+        else:
+            dir_styled = "[red]SELL[/red]"
+
+        # Timestamp: show first 19 chars (date + time)
+        ts = fill.timestamp[:19] if len(fill.timestamp) > 19 else fill.timestamp
+
+        table.add_row(
+            ts,
+            fill.symbol,
+            dir_styled,
+            str(fill.n_contracts),
+            f"{fill.order_price:.2f}",
+            f"{fill.fill_price:.2f}",
+            f"{fill.predicted_slippage:.4f}",
+            f"{fill.actual_slippage:.4f}",
+            f"{fill.fill_latency_ms:.0f}ms",
+        )
+
+    return table
+
+
+def format_reconciliation_report(report) -> Panel:
+    """Render a ReconciliationReport as a Rich Panel.
+
+    Parameters
+    ----------
+    report : ReconciliationReport
+        Output of ``SlippageReconciler.reconcile()``.
+    """
+    lines: list[str] = []
+
+    lines.append("[bold]Slippage Reconciliation[/bold]")
+    lines.append("")
+    lines.append(f"  N Fills:           {report.n_fills}")
+    lines.append(f"  Mean Predicted:    {report.mean_predicted:.4f}")
+    lines.append(f"  Mean Actual:       {report.mean_actual:.4f}")
+
+    # Color-code bias
+    abs_bias = abs(report.bias)
+    if abs_bias < 0.1:
+        bias_color = "green"
+    elif abs_bias < 0.5:
+        bias_color = "yellow"
+    else:
+        bias_color = "red"
+    lines.append(
+        f"  Bias:              [{bias_color}]{report.bias:.4f}[/{bias_color}]"
+    )
+
+    lines.append(f"  RMSE:              {report.rmse:.4f}")
+    lines.append(f"  Correlation:       {report.correlation:.4f}")
+    lines.append(
+        f"  Pessimism Mult:    {report.pessimism_multiplier:.2f}"
+    )
+
+    # Recommendation
+    lines.append("")
+    if report.pessimism_multiplier > 1.5:
+        lines.append(
+            "[bold red]WARNING: Paper fills are significantly optimistic.[/bold red]"
+        )
+        lines.append(
+            f"  Actual slippage is {report.pessimism_multiplier:.1f}x the "
+            "predicted slippage."
+        )
+        lines.append(
+            "  Consider increasing the impact coefficient in the slippage model."
+        )
+    elif report.pessimism_multiplier > 1.2:
+        lines.append(
+            "[yellow]WATCH: Paper fills are somewhat optimistic.[/yellow]"
+        )
+    else:
+        lines.append(
+            "[green]Slippage model is well-calibrated.[/green]"
+        )
+
+    return Panel(
+        "\n".join(lines),
+        title="Slippage Reconciliation Report",
+        border_style="blue",
+    )
