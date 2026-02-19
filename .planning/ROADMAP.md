@@ -96,15 +96,15 @@ Plans:
   7. Research Head can discover and propose new data signals (congressional trades, cycles, seasonal patterns) via web search, with proposals validated through sandbox before integration
   8. Head reputation scoring tracks success rates and adjusts budgets/frequency accordingly
 **Research Flag**: This phase NEEDS deeper research before planning. Key research areas: (1) LLM structured output reliability with DeepSeek-R1 and Qwen2.5, (2) prompt engineering for financial domain reasoning, (3) mutation playbook design, (4) multi-head coordination patterns (independent vs. collaborative), (5) Research Head web search tooling and data source APIs (Senate STOCK Act, USDA, seasonal databases), (6) tournament bracket design for hypothesis ranking, (7) head reputation scoring and budget allocation strategies.
-**Plans**: TBD
+**Plans**: 6 plans in 4 waves
 
 Plans:
-- [ ] 04-01: TBD (LLM client + fallback chain)
-- [ ] 04-02: TBD (Single-head agent loop)
-- [ ] 04-03: TBD (Diagnostician + mutation playbook)
-- [ ] 04-04: TBD (Head Coordinator + arena tournament)
-- [ ] 04-05: TBD (Research Head + web search + proposal system)
-- [ ] 04-06: TBD (Reputation scoring + scheduling + budget management)
+- [ ] 04-01-PLAN.md -- LLM client with fallback chain, task-type router, Pydantic schemas, cost tracking
+- [ ] 04-02-PLAN.md -- Autonomy gating, hysteresis rollback, 3-of-5 promotion, semantic dedup, reputation budgets
+- [ ] 04-03-PLAN.md -- Diagnostician (structured triage), hypothesis engine (mutation playbook), experiment runner (subprocess)
+- [ ] 04-04-PLAN.md -- Agent loop state machine, Head Coordinator, Arena tournament, abstract BaseHead
+- [ ] 04-05-PLAN.md -- Technical/Research/Structural heads, data source integrations, proposal system
+- [ ] 04-06-PLAN.md -- Head scheduling with reputation-adjusted frequency, integration tests
 
 ### Phase 5: Execution + Hardening
 **Goal**: The system trades on paper through Interactive Brokers with the same execution path as live, validates that simulated performance matches real fills, and demonstrates at least one successful autonomous self-healing cycle over 4+ weeks
