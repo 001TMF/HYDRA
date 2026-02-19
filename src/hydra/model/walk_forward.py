@@ -354,6 +354,7 @@ class WalkForwardEngine:
             predictions=np.array(all_predictions),
             actuals=np.array(all_actuals),
             fold_returns=fold_returns_list,
+            trade_log=trade_log,
         )
 
     @staticmethod

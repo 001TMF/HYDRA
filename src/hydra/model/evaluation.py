@@ -39,6 +39,7 @@ def compute_backtest_metrics(
     actuals: np.ndarray,
     fold_returns: list[np.ndarray] | None = None,
     risk_free_rate: float = 0.0,
+    trade_log: list[dict] | None = None,
 ) -> BacktestResult:
     """Compute all backtest metrics from daily returns.
 
@@ -54,6 +55,8 @@ def compute_backtest_metrics(
         Per-fold return arrays for computing per-fold Sharpe ratios.
     risk_free_rate : float
         Annualized risk-free rate (default 0.0).
+    trade_log : list[dict] | None
+        Individual trade records from the engine (passed through to result).
 
     Returns
     -------
@@ -112,7 +115,7 @@ def compute_backtest_metrics(
         n_trades=n_trades,
         fold_sharpes=fold_sharpes,
         equity_curve=equity_curve,
-        trade_log=[],
+        trade_log=trade_log if trade_log is not None else [],
     )
 
 
