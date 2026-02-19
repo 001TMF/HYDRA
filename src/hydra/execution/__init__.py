@@ -6,7 +6,9 @@ Public API:
 """
 
 from hydra.execution.broker import BrokerGateway
+from hydra.execution.risk_gate import RiskGate
 
 __all__ = [
     "BrokerGateway",
+    "RiskGate",
 ]
