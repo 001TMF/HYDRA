@@ -12,5 +12,5 @@ async def index(request: Request):
     """Render the overview page."""
     templates = request.app.state.templates
     return templates.TemplateResponse(
-        "base.html", {"request": request, "page_title": "Overview"}
+        request, "base.html", {"page_title": "Overview"}
     )

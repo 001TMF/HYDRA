@@ -20,32 +20,42 @@ async def health(request: Request):
     any_unavailable = False
 
     # Check FillJournal
-    fj = None
-    try:
-        from hydra.execution.fill_journal import FillJournal
+    fill_db = data_dir / "fill_journal.db"
+    if fill_db.exists():
+        fj = None
+        try:
+            from hydra.execution.fill_journal import FillJournal
 
-        fj = FillJournal(data_dir / "fill_journal.db")
-        status["fill_journal"] = "ok"
-    except Exception:
+            fj = FillJournal(fill_db)
+            status["fill_journal"] = "ok"
+        except Exception:
+            status["fill_journal"] = "unavailable"
+            any_unavailable = True
+        finally:
+            if fj is not None:
+                fj.close()
+    else:
         status["fill_journal"] = "unavailable"
         any_unavailable = True
-    finally:
-        if fj is not None:
-            fj.close()
 
     # Check ExperimentJournal
-    ej = None
-    try:
-        from hydra.sandbox.journal import ExperimentJournal
+    exp_db = data_dir / "experiment_journal.db"
+    if exp_db.exists():
+        ej = None
+        try:
+            from hydra.sandbox.journal import ExperimentJournal
 
-        ej = ExperimentJournal(data_dir / "experiment_journal.db")
-        status["experiment_journal"] = "ok"
-    except Exception:
+            ej = ExperimentJournal(exp_db)
+            status["experiment_journal"] = "ok"
+        except Exception:
+            status["experiment_journal"] = "unavailable"
+            any_unavailable = True
+        finally:
+            if ej is not None:
+                ej.close()
+    else:
         status["experiment_journal"] = "unavailable"
         any_unavailable = True
-    finally:
-        if ej is not None:
-            ej.close()
 
     # Agent state
     from hydra.cli.state import get_state
@@ -60,11 +70,14 @@ async def health(request: Request):
 async def fills_summary(request: Request):
     """Return fill count and last 5 fills for dashboard polling."""
     data_dir = request.app.state.data_dir
+    fill_db = data_dir / "fill_journal.db"
+    if not fill_db.exists():
+        return {"fill_count": 0, "recent_fills": []}
     fj = None
     try:
         from hydra.execution.fill_journal import FillJournal
 
-        fj = FillJournal(data_dir / "fill_journal.db")
+        fj = FillJournal(fill_db)
         fill_count = fj.count()
         recent = fj.get_fills(limit=5)
         recent_fills = [

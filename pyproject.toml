@@ -38,6 +38,7 @@ hydra = "hydra.cli.app:app"
 dev = [
     "pytest",
     "pytest-asyncio",
+    "httpx",
     "ruff",
     "mypy",
     "matplotlib",
