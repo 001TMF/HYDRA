@@ -12,25 +12,25 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 Phase: 1 of 5 (Data Infrastructure + Options Math Engine)
 Plan: 6 of 6 in current phase
 Status: Executing
-Last activity: 2026-02-19 -- Completed 01-05-PLAN.md
+Last activity: 2026-02-19 -- Completed 01-04-PLAN.md
 
-Progress: [########..] 80%
+Progress: [#########.] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 4min
-- Total execution time: 0.4 hours
+- Total plans completed: 6
+- Average duration: 5min
+- Total execution time: 0.5 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 5 | 21min | 4min |
+| 01 | 6 | 28min | 5min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (7min), 01-02 (3min), 01-03 (3min), 01-04 (4min), 01-05 (4min)
+- Last 5 plans: 01-02 (3min), 01-03 (3min), 01-05 (4min), 01-04 (7min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -50,7 +50,10 @@ Recent decisions affecting current work:
 - [01-03]: L-BFGS-B with ftol=1e-14 and maxiter=1000 for robust SVI convergence on sparse data
 - [01-03]: Sparse data produces warnings rather than errors (< 8 strikes), per OPTS-05 graceful degradation
 - [01-03]: Pure NumPy/SciPy for SVI -- no QuantLib needed
-- [01-05]: DataQuality enum defined locally in greeks.py (density.py not yet created); consolidate when 01-04 executes
+- [01-04]: DataQuality enum consolidated into density.py as canonical location; greeks.py imports from density.py
+- [01-04]: Brentq IV inversion with xtol=1e-10, maxiter=200; returns None on failure for safe degradation
+- [01-04]: 200-point fine grid with 5% margin for stable B-L second derivatives
+- [01-04]: Negative density clipped to zero with warning, then renormalized to integrate to 1.0
 - [01-05]: Scalar math module for per-option Black-76 computation; scipy.stats.norm for PDF/CDF
 - [01-05]: Liquidity filter uses OR logic (strike liquid if either call or put OI meets threshold)
 - [Phase 01]: [01-02]: COT available_at uses fixed EST offset (UTC-5); production should use proper DST handling
@@ -68,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 01-02-PLAN.md (data ingestion pipelines: futures, options, COT)
+Stopped at: Completed 01-04-PLAN.md (B-L density extraction + implied moments)
 Resume file: None
