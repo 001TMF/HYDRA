@@ -1,27 +1,17 @@
-"""Execution layer: broker abstraction, risk middleware, order management, and fill tracking.
+"""Execution layer: broker abstraction, risk middleware, and order management.
 
 Public API:
     - BrokerGateway: ib_async wrapper with connection management and reconnection
     - RiskGate: Mandatory pre-trade circuit breaker middleware
     - OrderManager: Smart order routing (limit-patience + TWAP)
-    - FillJournal: SQLite fill logging with slippage tracking
-    - FillRecord: Dataclass for a single fill entry
-    - SlippageReconciler: Predicted vs actual slippage comparison
-    - ReconciliationReport: Statistical comparison metrics
 """
 
 from hydra.execution.broker import BrokerGateway
-from hydra.execution.fill_journal import FillJournal, FillRecord
 from hydra.execution.order_manager import OrderManager
-from hydra.execution.reconciler import ReconciliationReport, SlippageReconciler
 from hydra.execution.risk_gate import RiskGate
 
 __all__ = [
     "BrokerGateway",
-    "FillJournal",
-    "FillRecord",
     "OrderManager",
-    "ReconciliationReport",
     "RiskGate",
-    "SlippageReconciler",
 ]
