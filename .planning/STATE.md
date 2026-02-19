@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 6 of 6 (Dashboard + Monitoring + Containerisation)
-Plan: 3 of 4 in current phase
-Status: Executing Phase 6 -- Dashboard pages and lifespan runner complete
-Last activity: 2026-02-20 -- 5 dashboard pages, htmx auto-refresh, PaperTradingRunner lifespan integration
+Plan: 4 of 4 in current phase
+Status: Phase 6 COMPLETE -- All 4 plans executed
+Last activity: 2026-02-20 -- Dashboard tests (16 new), CLI serve command, HYDRA_DATA_DIR env var
 
-Progress: [########--] 75% (Phase 6: 3/4 plans)
+Progress: [##########] 100% (Phase 6: 4/4 plans)
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [########--] 75% (Phase 6: 3/4 plans)
 | Phase 06 P01 | 5min | 2 tasks | 11 files |
 | Phase 06 P02 | 4min | 2 tasks | 5 files |
 | Phase 06 P03 | 5min | 3 tasks | 11 files |
+| Phase 06 P04 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -158,6 +159,8 @@ Recent decisions affecting current work:
 - [06-03]: Graceful DB fallback helpers return None on failure -- dashboard shows "No data" instead of crashing
 - [06-03]: HYDRA_START_RUNNER env var activates runner without changing create_app call signature
 - [06-03]: Runner construction failures caught in lifespan -- dashboard starts even if IB Gateway unavailable
+- [Phase 06]: HYDRA_DATA_DIR env var checked before ~/.hydra default in create_app -- allows Docker override without CLI flag
+- [Phase 06]: CLI serve validates app creation before starting uvicorn -- fail-fast on config errors
 
 ### Roadmap Evolution
 
@@ -175,9 +178,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 06-03-PLAN.md
+Stopped at: Completed 06-04-PLAN.md -- Phase 6 complete
 Resume file: None
-Next: Execute 06-04 (tests + CLI serve command)
+Next: All 6 phases complete
 
 ## Milestone v1 Summary
 

@@ -142,7 +142,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 **Goal:** A read-only monitoring dashboard surfaces paper trading metrics (fills, slippage, agent status, drift, reconciliation) via FastAPI + Jinja2 + htmx, and Docker Compose containerises the full HYDRA + IB Gateway stack for reproducible deployment
 **Depends on:** Phase 5
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] 06-01-PLAN.md -- FastAPI dashboard foundation: app factory, routes, health endpoint, base template, tests
