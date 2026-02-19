@@ -26,7 +26,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Signal Layer
 
-- [ ] **SGNL-01**: COT data produces normalized sentiment score in [-1, +1] with confidence weight
+- [x] **SGNL-01**: COT data produces normalized sentiment score in [-1, +1] with confidence weight
 - [ ] **SGNL-02**: Divergence detector classifies options-implied vs. sentiment divergence into 6 types per PRD taxonomy
 - [ ] **SGNL-03**: Divergence output includes direction, magnitude, type, confidence, and suggested bias
 
@@ -133,7 +133,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPTS-03 | Phase 1 | Complete |
 | OPTS-04 | Phase 1 | Complete |
 | OPTS-05 | Phase 1 | Complete |
-| SGNL-01 | Phase 2 | Pending |
+| SGNL-01 | Phase 2 | Complete |
 | SGNL-02 | Phase 2 | Pending |
 | SGNL-03 | Phase 2 | Pending |
 | MODL-01 | Phase 2 | Pending |

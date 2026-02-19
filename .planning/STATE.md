@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The agent loop must reliably detect model degradation, diagnose root causes, generate and test improvement hypotheses, and promote better models -- all without human intervention.
-**Current focus:** Phase 1: Data Infrastructure + Options Math Engine
+**Current focus:** Phase 2: Signal Layer + Baseline Model
 
 ## Current Position
 
-Phase: 1 of 5 (Data Infrastructure + Options Math Engine)
-Plan: 6 of 6 in current phase (ALL COMPLETE)
-Status: Phase Complete
-Last activity: 2026-02-19 -- Completed 01-06-PLAN.md (Phase 1 complete)
+Phase: 2 of 5 (Signal Layer + Baseline Model)
+Plan: 1 of 5 in current phase
+Status: Executing
+Last activity: 2026-02-19 -- Completed 02-01-PLAN.md
 
-Progress: [##########] 100% (Phase 1)
+Progress: [##--------] 20% (Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 6min
+- Total plans completed: 7
+- Average duration: 5min
 - Total execution time: 0.6 hours
 
 **By Phase:**
@@ -28,9 +28,10 @@ Progress: [##########] 100% (Phase 1)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 36min | 6min |
+| 02 | 1 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (3min), 01-03 (3min), 01-05 (4min), 01-04 (7min), 01-06 (8min)
+- Last 5 plans: 01-03 (3min), 01-05 (4min), 01-04 (7min), 01-06 (8min), 02-01 (2min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -61,6 +62,9 @@ Recent decisions affecting current work:
 - [01-06]: Weekend-only heuristic for trading day detection; no holiday calendar in Phase 1
 - [01-06]: Three-tier quality status: healthy/degraded/stale maps to operational decisions
 - [01-06]: Configurable thresholds via config dict for per-environment tuning
+- [02-01]: Confidence formula: 0.6*oi_rank + 0.4*min(concentration*5, 1.0) -- weights OI magnitude over concentration
+- [02-01]: percentileofscore with default 'rank' method for percentile computation
+- [02-01]: Minimum 4 weeks history threshold for neutral fallback
 
 ### Pending Todos
 
@@ -74,6 +78,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 01-06-PLAN.md (Phase 1 complete -- all 6 plans executed)
+Stopped at: Completed 02-01-PLAN.md (COT sentiment scoring)
 Resume file: None
-Next: Phase 2 planning (Signal Layer + Baseline Model)
+Next: 02-02-PLAN.md
