@@ -53,6 +53,8 @@ Recent decisions affecting current work:
 - [01-05]: DataQuality enum defined locally in greeks.py (density.py not yet created); consolidate when 01-04 executes
 - [01-05]: Scalar math module for per-option Black-76 computation; scipy.stats.norm for PDF/CDF
 - [01-05]: Liquidity filter uses OR logic (strike liquid if either call or put OI meets threshold)
+- [Phase 01]: [01-02]: COT available_at uses fixed EST offset (UTC-5); production should use proper DST handling
+- [Phase 01]: [01-02]: Options chain joined from three Databento schemas (mbp-1, definition, statistics) on instrument_id
 
 ### Pending Todos
 
@@ -66,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 01-05-PLAN.md (Black-76 Greeks and flow aggregation)
+Stopped at: Completed 01-02-PLAN.md (data ingestion pipelines: futures, options, COT)
 Resume file: None
