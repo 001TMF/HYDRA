@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HYDRA - {% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">HYDRA</div>
+        <a href="/">Overview</a>
+        <a href="/fills">Fills</a>
+        <a href="/agent">Agent</a>
+        <a href="/drift">Drift</a>
+        <a href="/system">System</a>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        HYDRA Dashboard -- Read-only monitoring. Control via CLI.
+    </footer>
+</body>
+</html>

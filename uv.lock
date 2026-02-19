@@ -1177,8 +1177,10 @@ dependencies = [
     { name = "apscheduler" },
     { name = "cot-reports" },
     { name = "databento" },
+    { name = "fastapi" },
     { name = "ib-async" },
     { name = "instructor" },
+    { name = "jinja2" },
     { name = "lightgbm" },
     { name = "mlflow" },
     { name = "numpy" },
@@ -1188,9 +1190,11 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "scipy" },
     { name = "sentence-transformers" },
+    { name = "sse-starlette" },
     { name = "structlog" },
     { name = "tenacity" },
     { name = "typer" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -1207,8 +1211,10 @@ requires-dist = [
     { name = "apscheduler", specifier = ">=3.10" },
     { name = "cot-reports" },
     { name = "databento" },
+    { name = "fastapi", specifier = ">=0.115.0" },
     { name = "ib-async", specifier = ">=2.1.0" },
     { name = "instructor", specifier = ">=1.14.5" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "lightgbm", specifier = ">=4.0" },
     { name = "mlflow", specifier = ">=3.9" },
     { name = "numpy", specifier = ">=1.26" },
@@ -1218,9 +1224,11 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.4" },
     { name = "scipy", specifier = ">=1.12" },
     { name = "sentence-transformers", specifier = ">=5.2.3" },
+    { name = "sse-starlette", specifier = ">=2.0" },
     { name = "structlog", specifier = ">=24.1" },
     { name = "tenacity", specifier = ">=9.1.4" },
     { name = "typer", extras = ["all"], specifier = ">=0.12" },
+    { name = "uvicorn", specifier = ">=0.34.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -3472,6 +3480,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/90/76/437d71068094df0726366574cf3432a4ed754217b436eb7429415cf2d480/sqlparse-0.5.5.tar.gz", hash = "sha256:e20d4a9b0b8585fdf63b10d30066c7c94c5d7a7ec47c889a2d83a3caa93ff28e", size = 120815, upload-time = "2025-12-19T07:17:45.073Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/4b/359f28a903c13438ef59ebeee215fb25da53066db67b305c125f1c6d2a25/sqlparse-0.5.5-py3-none-any.whl", hash = "sha256:12a08b3bf3eec877c519589833aed092e2444e68240a3577e8e26148acc7b1ba", size = 46138, upload-time = "2025-12-19T07:17:46.573Z" },
+]
+
+[[package]]
+name = "sse-starlette"
+version = "3.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "starlette" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8b/8d/00d280c03ffd39aaee0e86ec81e2d3b9253036a0f93f51d10503adef0e65/sse_starlette-3.2.0.tar.gz", hash = "sha256:8127594edfb51abe44eac9c49e59b0b01f1039d0c7461c6fd91d4e03b70da422", size = 27253, upload-time = "2026-01-17T13:11:05.62Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/96/7f/832f015020844a8b8f7a9cbc103dd76ba8e3875004c41e08440ea3a2b41a/sse_starlette-3.2.0-py3-none-any.whl", hash = "sha256:5876954bd51920fc2cd51baee47a080eb88a37b5b784e615abb0b283f801cdbf", size = 12763, upload-time = "2026-01-17T13:11:03.775Z" },
 ]
 
 [[package]]
