@@ -42,6 +42,7 @@ Progress: [######----] 60% (Phase 4: 3/5 plans)
 | Phase 03 P06 | 8min | 2 tasks | 7 files |
 | Phase 04 P02 | 4min | 2 tasks | 7 files |
 | Phase 04 P01 | 4min | 2 tasks | 11 files |
+| Phase 04 P03 | 5min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,10 @@ Recent decisions affecting current work:
 - [Phase 04]: instructor.from_openai wraps OpenAI clients for Together AI and DeepSeek providers with Pydantic structured output
 - [Phase 04]: LLM schemas (Pydantic BaseModel) kept separate from core types (dataclasses) to avoid coupling agent to Pydantic
 - [Phase 04]: Token estimation uses 4 chars/token heuristic for LLM cost tracking without requiring API usage metadata
+- [04-03]: Priority-ordered classification: feature_drift > performance > regime_change > overfitting > default
+- [04-03]: Config diff resolution via regex patterns (multiply, floor_div, max) -- no eval() for security
+- [04-03]: propose_multiple caps at playbook size to avoid duplicate hypotheses
+- [04-03]: LLM enhancement threshold: confidence < 0.6 triggers optional LLM call
 
 ### Pending Todos
 
@@ -122,6 +127,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 04-02-PLAN.md (Guardrails)
+Stopped at: Completed 04-03-PLAN.md (Diagnostician + Hypothesis Engine)
 Resume file: None
-Next: Continue Phase 4 execution (04-03 through 04-05)
+Next: Continue Phase 4 execution (04-04 through 04-05)

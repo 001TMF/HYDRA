@@ -51,8 +51,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 #### Single-Head Agent Loop (Foundation)
 - [ ] **AGNT-01**: Agent runs full observe -> diagnose -> hypothesize -> experiment -> evaluate loop autonomously
-- [ ] **AGNT-02**: Diagnostician performs structured triage (data audit, SHAP attribution, regime check, overfitting test) before proposing fixes
-- [ ] **AGNT-03**: Hypothesis engine proposes mutations from curated playbook matched to diagnosed root causes
+- [x] **AGNT-02**: Diagnostician performs structured triage (data audit, SHAP attribution, regime check, overfitting test) before proposing fixes
+- [x] **AGNT-03**: Hypothesis engine proposes mutations from curated playbook matched to diagnosed root causes
 - [ ] **AGNT-04**: Experiment runner executes candidate training in isolation (subprocess) with configurable timeout
 - [x] **AGNT-05**: LLM client calls DeepSeek-R1 with fallback chain (DeepSeek-R1 -> Qwen2.5 -> rule-based) and Pydantic validation on all outputs
 - [x] **AGNT-06**: Autonomy levels (supervised, semi-auto, autonomous, lockdown) are configurable and gate agent actions appropriately
@@ -167,8 +167,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SBOX-05 | Phase 3 | Complete |
 | SBOX-06 | Phase 3 | Complete |
 | AGNT-01 | Phase 4 | Pending |
-| AGNT-02 | Phase 4 | Pending |
-| AGNT-03 | Phase 4 | Pending |
+| AGNT-02 | Phase 4 | Complete |
+| AGNT-03 | Phase 4 | Complete |
 | AGNT-04 | Phase 4 | Pending |
 | AGNT-05 | Phase 4 | Complete |
 | AGNT-06 | Phase 4 | Complete |
