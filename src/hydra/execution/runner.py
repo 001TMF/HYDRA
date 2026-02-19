@@ -444,17 +444,33 @@ class PaperTradingRunner:
 
         contract = self._qualified_contract
 
-        # Request live snapshot (frozen data for paper accounts)
-        tickers = self._broker.ib.reqTickers(contract)
-        ticker = tickers[0] if tickers else None
+        # Use delayed data (free, 15-min delay) when live isn't subscribed.
+        # Type 3 = delayed, falls back to live if subscribed.
+        self._broker.ib.reqMarketDataType(3)
 
-        if ticker and not math.isnan(ticker.bid) and not math.isnan(ticker.ask):
+        # reqMktData is async-safe (reqTickers has nested-loop issues).
+        # snapshot=True requests a single update then auto-cancels.
+        import asyncio
+
+        ticker = self._broker.ib.reqMktData(contract, "", True, False)
+        await asyncio.sleep(3)  # allow delayed snapshot to arrive
+        self._broker.ib.cancelMktData(contract)
+
+        def _valid(val: float) -> bool:
+            """Check IB value is usable (not NaN and not -1 sentinel)."""
+            return not math.isnan(val) and val > 0
+
+        if ticker and _valid(ticker.bid) and _valid(ticker.ask):
             mid_price = (ticker.bid + ticker.ask) / 2.0
             spread = ticker.ask - ticker.bid
-        elif ticker and not math.isnan(ticker.last):
+        elif ticker and _valid(ticker.last):
             mid_price = ticker.last
             spread = mid_price * 0.002  # estimate 0.2% spread
             logger.warning("no_bid_ask_using_last", last=mid_price)
+        elif ticker and _valid(ticker.close):
+            mid_price = ticker.close
+            spread = mid_price * 0.002
+            logger.warning("no_last_using_close", close=mid_price)
         else:
             raise ValueError("No market data available from IB")
 
