@@ -76,7 +76,7 @@ Plans:
 
 Plans:
 - [ ] 03-01-PLAN.md -- Market replay engine with volume-adaptive slippage
-- [ ] 03-02-PLAN.md -- MLflow model registry with champion/candidate/archived lifecycle
+- [x] 03-02-PLAN.md -- MLflow model registry with champion/candidate/archived lifecycle
 - [ ] 03-03-PLAN.md -- Experiment journal with SQLite storage and query layer
 - [ ] 03-04-PLAN.md -- Drift detectors (PSI, KS, CUSUM, ADWIN) + DriftObserver
 - [ ] 03-05-PLAN.md -- Composite fitness evaluator with 6-metric weighted scoring

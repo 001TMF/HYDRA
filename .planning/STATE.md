@@ -84,6 +84,12 @@ Recent decisions affecting current work:
 - [Phase 03]: [03-03]: LIKE-based tag querying on JSON array column for SQLite compatibility
 - [Phase 03]: [03-03]: Dynamic WHERE clause builder with parameterized AND-combined filters for journal queries
 - [Phase 03]: [03-03]: ExperimentRecord required positional fields for core data, optional defaults for metadata extensibility
+- [03-02]: Absolute file:// tracking URI default prevents MLflow relative-path confusion
+- [03-02]: Alias-based lifecycle (champion/archived) instead of deprecated MLflow stages
+- [03-02]: Explicit logging (not autolog) for full control over what gets tracked
+- [Phase 03]: [03-04]: River library (v0.23) for ADWIN adaptive windowing -- avoids reimplementing complex algorithm
+- [Phase 03]: [03-04]: ADWIN + CUSUM paired per streaming metric for complementary drift detection
+- [Phase 03]: [03-04]: Epsilon smoothing (1e-4) with re-normalization for PSI zero-bin handling
 
 ### Pending Todos
 
