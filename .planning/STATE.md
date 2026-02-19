@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 5 of 5 (Execution + Hardening)
-Plan: 4 of 5 in current phase
+Plan: 5 of 5 in current phase
 Status: Executing Phase 5
-Last activity: 2026-02-19 -- Completed 05-03-PLAN.md (Fill Logging + Slippage Reconciliation)
+Last activity: 2026-02-19 -- Completed 05-04-PLAN.md (Paper Trading Runner + CLI Extensions)
 
-Progress: [######----] 60% (Phase 5: 3/5 plans)
+Progress: [########--] 80% (Phase 5: 4/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
+- Total plans completed: 25
 - Average duration: 4min
-- Total execution time: 1.45 hours
+- Total execution time: 1.53 hours
 
 **By Phase:**
 
@@ -48,6 +48,7 @@ Progress: [######----] 60% (Phase 5: 3/5 plans)
 | Phase 05 P01 | 3min | 2 tasks | 6 files |
 | Phase 05 P02 | 3min | 1 tasks | 3 files |
 | Phase 05 P03 | 3min | 2 tasks | 5 files |
+| Phase 05 P04 | 5min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,10 @@ Recent decisions affecting current work:
 - [05-03]: Minimum 10 fills required for reconciliation -- returns None for insufficient data
 - [05-03]: Constant-array correlation handled gracefully (returns 0.0 instead of NaN)
 - [05-03]: Pessimism multiplier uses epsilon floor (1e-10) to avoid division by zero
+- [05-04]: APScheduler AsyncIOScheduler with CronTrigger for daily cycle -- avoids blocking event loop
+- [05-04]: Live mode requires HYDRA_LIVE_CONFIRMED=true env var -- double safety with CLI --yes-i-mean-live flag
+- [05-04]: Agent loop and model.predict() are independent calls in daily cycle -- agent maintains quality, model produces signal
+- [05-04]: CLI paper-trade displays config and exits -- long-running process uses python -m hydra.execution.runner
 
 ### Pending Todos
 
@@ -149,6 +154,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 05-03-PLAN.md (Fill Logging + Slippage Reconciliation)
+Stopped at: Completed 05-04-PLAN.md (Paper Trading Runner + CLI Extensions)
 Resume file: None
-Next: 05-04-PLAN.md
+Next: 05-05-PLAN.md

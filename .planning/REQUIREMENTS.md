@@ -86,7 +86,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **EXEC-02**: All paper trading fills logged with timestamps and actual slippage for model validation
 - [x] **EXEC-03**: Order management implements smart order routing (limit orders with patience, TWAP for larger positions)
 - [x] **EXEC-04**: Risk management runs as middleware in execution path (not optional check)
-- [ ] **EXEC-05**: 4+ weeks of stable paper trading with at least one successful self-healing cycle before any live capital
+- [x] **EXEC-05**: 4+ weeks of stable paper trading with at least one successful self-healing cycle before any live capital
 
 ## v2 Requirements
 
@@ -194,7 +194,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-02 | Phase 5 | Complete |
 | EXEC-03 | Phase 5 | Complete |
 | EXEC-04 | Phase 5 | Complete |
-| EXEC-05 | Phase 5 | Pending |
+| EXEC-05 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 54 total
