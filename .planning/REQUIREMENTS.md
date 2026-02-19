@@ -12,8 +12,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **DATA-01**: System ingests futures OHLCV price bars (EOD + intraday) for the target market from a data vendor
 - [ ] **DATA-02**: System ingests full options chain data (all strikes, bids, asks, OI, volume, expiry) for the target market
 - [ ] **DATA-03**: System ingests CFTC Commitments of Traders (COT) reports with correct as-of/release date handling
-- [ ] **DATA-04**: Feature store provides point-in-time correct queries ("what features were available at time T?") preventing lookahead bias
-- [ ] **DATA-05**: Raw data persisted in Parquet format with append-only semantics
+- [x] **DATA-04**: Feature store provides point-in-time correct queries ("what features were available at time T?") preventing lookahead bias
+- [x] **DATA-05**: Raw data persisted in Parquet format with append-only semantics
 - [ ] **DATA-06**: Data quality monitoring detects staleness, missing strikes, and anomalous values with configurable alerts
 
 ### Options Math Engine
@@ -125,8 +125,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DATA-01 | Phase 1 | Pending |
 | DATA-02 | Phase 1 | Pending |
 | DATA-03 | Phase 1 | Pending |
-| DATA-04 | Phase 1 | Pending |
-| DATA-05 | Phase 1 | Pending |
+| DATA-04 | Phase 1 | Complete |
+| DATA-05 | Phase 1 | Complete |
 | DATA-06 | Phase 1 | Pending |
 | OPTS-01 | Phase 1 | Pending |
 | OPTS-02 | Phase 1 | Pending |
