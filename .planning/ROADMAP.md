@@ -72,12 +72,15 @@ Plans:
   3. Experiment journal logs every experiment with hypothesis, config diff, results, and promotion decision -- and is queryable by tag, date range, mutation type, and outcome
   4. Observer detects model drift via rolling performance metrics (Sharpe, drawdown, hit rate, calibration) and feature distribution drift (PSI, KS, ADWIN/CUSUM)
   5. CLI commands (`status`, `diagnose`, `rollback`, `pause`/`run`, `journal query`) work with Rich-formatted terminal output
-**Plans**: TBD
+**Plans**: 6 plans in 2 waves
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md -- Market replay engine with volume-adaptive slippage
+- [ ] 03-02-PLAN.md -- MLflow model registry with champion/candidate/archived lifecycle
+- [ ] 03-03-PLAN.md -- Experiment journal with SQLite storage and query layer
+- [ ] 03-04-PLAN.md -- Drift detectors (PSI, KS, CUSUM, ADWIN) + DriftObserver
+- [ ] 03-05-PLAN.md -- Composite fitness evaluator with 6-metric weighted scoring
+- [ ] 03-06-PLAN.md -- Typer CLI with Rich formatting (status, diagnose, rollback, pause/run, journal)
 
 ### Phase 4: Agent Core + LLM Integration
 **Goal**: The full observe-diagnose-hypothesize-experiment-evaluate agent loop runs autonomously, using LLM-powered reasoning with deterministic guardrails, and can detect degradation, diagnose root causes, propose fixes, test them, and promote improvements without human intervention
@@ -124,6 +127,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Data Infrastructure + Options Math Engine | 6/6 | Complete    | 2026-02-19 |
 | 2. Signal Layer + Baseline Model | 5/5 | Complete    | 2026-02-19 |
-| 3. Sandbox + Experiment Infrastructure | 0/TBD | Not started | - |
+| 3. Sandbox + Experiment Infrastructure | 0/6 | Not started | - |
 | 4. Agent Core + LLM Integration | 0/TBD | Not started | - |
 | 5. Execution + Hardening | 0/TBD | Not started | - |
