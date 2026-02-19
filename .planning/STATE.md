@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 4 of 5 (Agent Core + LLM Integration)
-Plan: 4 of 5 in current phase
-Status: Executing Phase 4
-Last activity: 2026-02-19 -- Completed 04-04-PLAN.md (Experiment Runner + Dedup + Budget)
+Plan: 5 of 5 in current phase
+Status: Phase 4 COMPLETE
+Last activity: 2026-02-19 -- Completed 04-05-PLAN.md (Agent Loop Wiring)
 
-Progress: [########--] 80% (Phase 4: 4/5 plans)
+Progress: [##########] 100% (Phase 4: 5/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: 4min
-- Total execution time: 1.3 hours
+- Total execution time: 1.4 hours
 
 **By Phase:**
 
@@ -44,6 +44,7 @@ Progress: [########--] 80% (Phase 4: 4/5 plans)
 | Phase 04 P01 | 4min | 2 tasks | 11 files |
 | Phase 04 P03 | 5min | 2 tasks | 5 files |
 | Phase 04 P04 | 8min | 2 tasks | 7 files |
+| Phase 04 P05 | 8min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,9 @@ Recent decisions affecting current work:
 - [04-04]: Defensive promotion_decision filtering in load_cooldowns_from_journal -- checks field on each record, not just query filter
 - [04-04]: Config expression resolution via regex for +, -, *, / operators with "current" token (no eval())
 - [04-04]: sentence-transformers installed as blocking dependency fix when 04-01 not yet executed
+- [04-05]: Dual promotion path: 3-of-5 PromotionEvaluator when window scores provided, single-score comparison as Honda default
+- [04-05]: check_permission returns graceful skip (not PermissionDeniedError) at each loop step for testability
+- [04-05]: Diagnosis inconclusive threshold: confidence < 0.3 AND no evidence causes early exit
 
 ### Pending Todos
 
@@ -131,6 +135,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 04-04-PLAN.md (Experiment Runner + Dedup + Budget)
+Stopped at: Completed 04-05-PLAN.md (Agent Loop Wiring) -- Phase 4 COMPLETE
 Resume file: None
-Next: Continue Phase 4 execution (04-05)
+Next: Phase 5 planning or verification

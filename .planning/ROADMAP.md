@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Data Infrastructure + Options Math Engine** - Ingestion pipelines, feature store, and options math that extract computable signals from thin-market data
 - [x] **Phase 2: Signal Layer + Baseline Model** - Divergence signal construction, baseline ML model, and walk-forward thesis validation
 - [x] **Phase 3: Sandbox + Experiment Infrastructure** - Market replay, model registry, experiment journal, observer, evaluator, and CLI for safe experimentation
-- [ ] **Phase 4: Agent Core + LLM Integration** - Full autonomous agent loop with LLM-powered diagnosis, hypothesis generation, and self-healing capability
+- [x] **Phase 4: Agent Core + LLM Integration** - Full autonomous agent loop with LLM-powered diagnosis, hypothesis generation, and self-healing capability
 - [ ] **Phase 5: Execution + Hardening** - IB paper trading pipeline, order management, risk middleware, and 4+ week live validation
 
 ## Phase Details
@@ -98,11 +98,11 @@ Plans:
 **Plans**: 5 plans in 2 waves
 
 Plans:
-- [ ] 04-01-PLAN.md -- LLM client with fallback chain, task-type router, Pydantic schemas, cost tracking
-- [ ] 04-02-PLAN.md -- Autonomy gating, hysteresis rollback, 3-of-5 promotion evaluation
-- [ ] 04-03-PLAN.md -- Diagnostician (rule-based structured triage), hypothesis engine (mutation playbook)
-- [ ] 04-04-PLAN.md -- Experiment runner (subprocess isolation), semantic dedup, mutation budgets + cooldowns
-- [ ] 04-05-PLAN.md -- Agent loop state machine wiring all modules into observe-diagnose-hypothesize-experiment-evaluate cycle
+- [x] 04-01-PLAN.md -- LLM client with fallback chain, task-type router, Pydantic schemas, cost tracking
+- [x] 04-02-PLAN.md -- Autonomy gating, hysteresis rollback, 3-of-5 promotion evaluation
+- [x] 04-03-PLAN.md -- Diagnostician (rule-based structured triage), hypothesis engine (mutation playbook)
+- [x] 04-04-PLAN.md -- Experiment runner (subprocess isolation), semantic dedup, mutation budgets + cooldowns
+- [x] 04-05-PLAN.md -- Agent loop state machine wiring all modules into observe-diagnose-hypothesize-experiment-evaluate cycle
 
 ### Phase 5: Execution + Hardening
 **Goal**: The system trades on paper through Interactive Brokers with the same execution path as live, validates that simulated performance matches real fills, and demonstrates at least one successful autonomous self-healing cycle over 4+ weeks
@@ -132,5 +132,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Data Infrastructure + Options Math Engine | 6/6 | Complete    | 2026-02-19 |
 | 2. Signal Layer + Baseline Model | 5/5 | Complete    | 2026-02-19 |
 | 3. Sandbox + Experiment Infrastructure | 0/6 | Complete    | 2026-02-19 |
-| 4. Agent Core + LLM Integration (Single-Head) | 0/5 | Not started | - |
+| 4. Agent Core + LLM Integration (Single-Head) | 5/5 | Complete    | 2026-02-19 |
 | 5. Execution + Hardening | 0/TBD | Not started | - |

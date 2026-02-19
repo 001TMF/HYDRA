@@ -50,7 +50,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Agent Core
 
 #### Single-Head Agent Loop (Foundation)
-- [ ] **AGNT-01**: Agent runs full observe -> diagnose -> hypothesize -> experiment -> evaluate loop autonomously
+- [x] **AGNT-01**: Agent runs full observe -> diagnose -> hypothesize -> experiment -> evaluate loop autonomously
 - [x] **AGNT-02**: Diagnostician performs structured triage (data audit, SHAP attribution, regime check, overfitting test) before proposing fixes
 - [x] **AGNT-03**: Hypothesis engine proposes mutations from curated playbook matched to diagnosed root causes
 - [x] **AGNT-04**: Experiment runner executes candidate training in isolation (subprocess) with configurable timeout
