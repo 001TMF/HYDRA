@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2 of 5 (Signal Layer + Baseline Model)
-Plan: 4 of 5 in current phase
-Status: Executing
-Last activity: 2026-02-19 -- Completed 02-04-PLAN.md
+Plan: 5 of 5 in current phase
+Status: Phase Complete
+Last activity: 2026-02-19 -- Completed 02-05-PLAN.md
 
-Progress: [########--] 80% (Phase 2)
+Progress: [##########] 100% (Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 5min
-- Total execution time: 0.9 hours
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 36min | 6min |
-| 02 | 4 | 18min | 4.5min |
+| 02 | 5 | 23min | 4.6min |
 
 **Recent Trend:**
-- Last 5 plans: 01-06 (8min), 02-01 (2min), 02-02 (3min), 02-03 (7min), 02-04 (6min)
+- Last 5 plans: 02-01 (2min), 02-02 (3min), 02-03 (7min), 02-04 (6min), 02-05 (5min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -74,6 +74,9 @@ Recent decisions affecting current work:
 - [02-04]: Divergence + sentiment features computed live in assemble_at() rather than pre-stored in feature store
 - [02-04]: LightGBM conservative defaults: num_leaves=31, lr=0.1, n_estimators=100 -- no tuning in Phase 2
 - [02-04]: NaN preservation for LightGBM native NaN handling -- missing features passed as NaN, not imputed
+- [02-05]: Single-period returns for PnL: (price[t]-price[t-1])/price[t-1] -- simple, avoids lookahead
+- [02-05]: Circuit breakers reset per fold to prevent carry-over bias between OOS periods
+- [02-05]: Running win/loss statistics for Kelly sizing within each fold -- adapts position size based on realized performance
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 02-04-PLAN.md (Feature engineering + LightGBM baseline model)
+Stopped at: Completed 02-05-PLAN.md (Walk-forward backtesting engine) -- Phase 2 COMPLETE
 Resume file: None
-Next: 02-05-PLAN.md
+Next: Phase 3 planning (pending Phase 2 validation gate: OOS Sharpe > 0)

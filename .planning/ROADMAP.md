@@ -13,7 +13,7 @@ HYDRA builds from raw data to autonomous self-healing through a strict five-phas
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Infrastructure + Options Math Engine** - Ingestion pipelines, feature store, and options math that extract computable signals from thin-market data
-- [ ] **Phase 2: Signal Layer + Baseline Model** - Divergence signal construction, baseline ML model, and walk-forward thesis validation
+- [x] **Phase 2: Signal Layer + Baseline Model** - Divergence signal construction, baseline ML model, and walk-forward thesis validation
 - [ ] **Phase 3: Sandbox + Experiment Infrastructure** - Market replay, model registry, experiment journal, observer, evaluator, and CLI for safe experimentation
 - [ ] **Phase 4: Agent Core + LLM Integration** - Full autonomous agent loop with LLM-powered diagnosis, hypothesis generation, and self-healing capability
 - [ ] **Phase 5: Execution + Hardening** - IB paper trading pipeline, order management, risk middleware, and 4+ week live validation
@@ -56,11 +56,11 @@ Plans:
 **Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 02-01-PLAN.md -- COT sentiment scoring: normalized [-1,+1] score with confidence (TDD)
-- [ ] 02-02-PLAN.md -- Risk infrastructure: slippage, position sizing, circuit breakers (TDD)
-- [ ] 02-03-PLAN.md -- Divergence detector: 6-type taxonomy classification (TDD)
-- [ ] 02-04-PLAN.md -- Feature matrix assembler + LightGBM baseline model
-- [ ] 02-05-PLAN.md -- Walk-forward backtesting engine + evaluation metrics
+- [x] 02-01-PLAN.md -- COT sentiment scoring: normalized [-1,+1] score with confidence (TDD)
+- [x] 02-02-PLAN.md -- Risk infrastructure: slippage, position sizing, circuit breakers (TDD)
+- [x] 02-03-PLAN.md -- Divergence detector: 6-type taxonomy classification (TDD)
+- [x] 02-04-PLAN.md -- Feature matrix assembler + LightGBM baseline model
+- [x] 02-05-PLAN.md -- Walk-forward backtesting engine + evaluation metrics
 
 ### Phase 3: Sandbox + Experiment Infrastructure
 **Goal**: A safe experimentation environment exists where models can be trained, evaluated, versioned, and compared through replay of historical data with realistic slippage, and an operator can inspect and control the system via CLI
@@ -123,7 +123,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Infrastructure + Options Math Engine | 6/6 | Complete    | 2026-02-19 |
-| 2. Signal Layer + Baseline Model | 0/5 | Not started | - |
+| 2. Signal Layer + Baseline Model | 5/5 | Complete    | 2026-02-19 |
 | 3. Sandbox + Experiment Infrastructure | 0/TBD | Not started | - |
 | 4. Agent Core + LLM Integration | 0/TBD | Not started | - |
 | 5. Execution + Hardening | 0/TBD | Not started | - |
