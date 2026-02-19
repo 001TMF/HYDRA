@@ -137,3 +137,15 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 3. Sandbox + Experiment Infrastructure | 0/6 | Complete    | 2026-02-19 |
 | 4. Agent Core + LLM Integration (Single-Head) | 5/5 | Complete    | 2026-02-19 |
 | 5. Execution + Hardening | 5/5 | Complete    | 2026-02-19 |
+
+### Phase 6: Dashboard + monitoring for paper trading and full lightweight containerisation
+
+**Goal:** A read-only monitoring dashboard surfaces paper trading metrics (fills, slippage, agent status, drift, reconciliation) via FastAPI + Jinja2 + htmx, and Docker Compose containerises the full HYDRA + IB Gateway stack for reproducible deployment
+**Depends on:** Phase 5
+**Plans:** 4 plans in 3 waves
+
+Plans:
+- [ ] 06-01-PLAN.md -- FastAPI dashboard foundation: app factory, routes, health endpoint, base template, tests
+- [ ] 06-02-PLAN.md -- Docker containerisation: Dockerfile, docker-compose.yml, .env management
+- [ ] 06-03-PLAN.md -- Dashboard pages: overview, fills, agent, drift, system with htmx auto-refresh
+- [ ] 06-04-PLAN.md -- Dashboard tests, CLI serve command, full integration verification
