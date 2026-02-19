@@ -443,3 +443,51 @@ def fill_report(
         table = format_fill_table(fills)
         console.print(table)
         console.print(f"\n[dim]{len(fills)} fill(s) shown[/dim]")
+
+
+# ---------------------------------------------------------------------------
+# serve
+# ---------------------------------------------------------------------------
+
+
+@app.command()
+def serve(
+    port: int = typer.Option(8080, help="Dashboard port"),
+    host: str = typer.Option(
+        "127.0.0.1", help="Bind address (localhost only for security)"
+    ),
+    data_dir: Optional[str] = typer.Option(
+        None, help="Data directory for SQLite databases"
+    ),
+) -> None:
+    """Start the HYDRA monitoring dashboard."""
+    import pathlib
+
+    import uvicorn
+
+    from hydra.dashboard.app import create_app
+
+    if data_dir is None:
+        data_dir = str(pathlib.Path.home() / ".hydra")
+
+    _app = create_app(data_dir=data_dir)
+
+    console.print(
+        Panel(
+            f"[bold green]HYDRA Dashboard[/bold green]\n\n"
+            f"  URL:      http://{host}:{port}\n"
+            f"  Data dir: {data_dir}\n\n"
+            "[dim]Read-only monitoring. Control via CLI commands.[/dim]\n"
+            "[dim]Press Ctrl+C to stop.[/dim]",
+            title="Dashboard Starting",
+            border_style="green",
+        )
+    )
+
+    uvicorn.run(
+        "hydra.dashboard.app:create_app",
+        host=host,
+        port=port,
+        factory=True,
+        log_level="info",
+    )

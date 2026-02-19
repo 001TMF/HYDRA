@@ -102,7 +102,7 @@ def create_app(
         Configured application instance.
     """
     if data_dir is None:
-        data_dir = "~/.hydra"
+        data_dir = os.environ.get("HYDRA_DATA_DIR", "~/.hydra")
 
     if not start_runner:
         start_runner = os.environ.get("HYDRA_START_RUNNER", "").lower() == "true"
