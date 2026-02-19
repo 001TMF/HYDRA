@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The agent loop must reliably detect model degradation, diagnose root causes, generate and test improvement hypotheses, and promote better models -- all without human intervention.
-**Current focus:** Phase 3: Sandbox + Experiment Infrastructure
+**Current focus:** Phase 4: Agent Core + LLM Integration
 
 ## Current Position
 
-Phase: 3 of 5 (Sandbox + Experiment Infrastructure)
-Plan: 6 of 6 in current phase
-Status: Phase 3 Complete
-Last activity: 2026-02-19 -- Completed 03-06-PLAN.md (HYDRA CLI)
+Phase: 4 of 5 (Agent Core + LLM Integration)
+Plan: 2 of 5 in current phase
+Status: Executing Phase 4
+Last activity: 2026-02-19 -- Completed 04-02-PLAN.md (Guardrails)
 
-Progress: [##########] 100% (Phase 3: 6/6 plans)
+Progress: [####------] 40% (Phase 4: 2/5 plans)
 
 ## Performance Metrics
 
@@ -40,6 +40,7 @@ Progress: [##########] 100% (Phase 3: 6/6 plans)
 | Phase 03 P04 | 3min | 2 tasks | 10 files |
 | Phase 03 P01 | 5min | 2 tasks | 3 files |
 | Phase 03 P06 | 8min | 2 tasks | 7 files |
+| Phase 04 P02 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,9 @@ Recent decisions affecting current work:
 - [03-06]: AgentState defaults to PAUSED when state file missing -- safe default prevents unintended agent execution
 - [03-06]: Diagnose uses synthetic data in Phase 3; live data integration deferred to Phase 4
 - [03-06]: Journal defaults to ~/.hydra/experiment_journal.db when no path provided
+- [Phase 04]: Minimum-level comparison (level >= required) for permission gating -- simpler than nested dict from research
+- [Phase 04]: Strict inequality for degradation threshold -- exactly at threshold is NOT degraded (conservative)
+- [Phase 04]: Strict inequality for promotion wins -- tied fitness does NOT count as candidate win (conservative)
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 03-06-PLAN.md (HYDRA CLI) -- Phase 3 Complete
+Stopped at: Completed 04-02-PLAN.md (Guardrails)
 Resume file: None
-Next: Phase 4 planning (Autonomous Agent Loop)
+Next: Continue Phase 4 execution (04-03 through 04-05)
