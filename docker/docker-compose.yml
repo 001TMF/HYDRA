@@ -1,0 +1,42 @@
+services:
+  ib-gateway:
+    image: ghcr.io/gnzsnz/ib-gateway:stable
+    restart: always
+    env_file: .env
+    environment:
+      TRADING_MODE: ${TRADING_MODE:-paper}
+    ports:
+      - "127.0.0.1:4002:4004"   # Paper API port (internal 4004 -> host 4002)
+      - "127.0.0.1:5900:5900"   # VNC for debugging (optional)
+    volumes:
+      - ib-gateway-data:/root/ibc
+
+  hydra:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    restart: always
+    depends_on:
+      - ib-gateway
+    env_file: .env
+    environment:
+      IB_GATEWAY_HOST: ib-gateway
+      IB_GATEWAY_PORT: "4004"          # Internal container port (paper)
+      HYDRA_DATA_DIR: /data
+      HYDRA_START_RUNNER: "true"       # Activate PaperTradingRunner via lifespan (06-03 Task 3)
+      TRADING_MODE: ${TRADING_MODE:-paper}
+    volumes:
+      - hydra-data:/data
+    ports:
+      - "127.0.0.1:8080:8080"         # Dashboard (localhost only)
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  hydra-data:       # fill_journal.db, experiment_journal.db, logs/
+  ib-gateway-data:  # IBC config persistence
