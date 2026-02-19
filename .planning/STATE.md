@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** The agent loop must reliably detect model degradation, diagnose root causes, generate and test improvement hypotheses, and promote better models -- all without human intervention.
-**Current focus:** All 5 phases complete -- IB Gateway verified, entering 4-week paper trading validation
+**Current focus:** Phase 6 added -- Dashboard + monitoring + containerisation
 
 ## Current Position
 
-Phase: 5 of 5 (Execution + Hardening) -- CLOSED
-Plan: 5 of 5 in current phase (ALL COMPLETE)
-Status: Phase 5 CLOSED -- IB Gateway connected, delayed data flowing, dry run passed 6/7
-Last activity: 2026-02-19 -- IB Gateway dry run verified (broker, contract qual, historical bars, risk gate, fill journal, reconciler)
+Phase: 6 of 6 (Dashboard + Monitoring + Containerisation)
+Plan: 2 of 4 in current phase
+Status: Executing Phase 6 -- Docker containerisation complete
+Last activity: 2026-02-19 -- Docker Compose stack created (Dockerfile, compose, .env.example, .dockerignore)
 
-Progress: [##########] 100% (Phase 5: 5/5 plans)
+Progress: [#####-----] 50% (Phase 6: 2/4 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
+- Total plans completed: 28
 - Average duration: 4min
-- Total execution time: 1.66 hours
+- Total execution time: 1.79 hours
 
 **By Phase:**
 
@@ -50,6 +50,7 @@ Progress: [##########] 100% (Phase 5: 5/5 plans)
 | Phase 05 P03 | 3min | 2 tasks | 5 files |
 | Phase 05 P04 | 5min | 2 tasks | 5 files |
 | Phase 05 P05 | 8min | 3 tasks | 2 files |
+| Phase 06 P02 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -146,6 +147,14 @@ Recent decisions affecting current work:
 - [05-05]: Port safety verified in integration: port 4002 = paper (True), port 4001 = paper (False)
 - [05-05]: IB Gateway setup deferred to when ready -- 4-week paper trading begins upon configuration
 - [05-05]: PAPER_TRADING_PLAN.md requires ALL six gate conditions met before any live capital
+- [06-02]: Single container for runner + dashboard (SQLite WAL safety)
+- [06-02]: gnzsnz/ib-gateway:stable for headless IB Gateway containerisation
+- [06-02]: Internal port 4004 for paper trading between Docker containers
+- [06-02]: Named volumes for data persistence; dashboard bound to 127.0.0.1 only
+
+### Roadmap Evolution
+
+- Phase 6 added: Dashboard + monitoring for paper trading and full lightweight containerisation
 
 ### Pending Todos
 
@@ -159,9 +168,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 5 CLOSED -- All v1 milestone code complete, IB Gateway verified
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
-Next: 4-week paper trading validation period (see PAPER_TRADING_PLAN.md)
+Next: Continue Phase 6 execution (06-03, 06-04)
 
 ## Milestone v1 Summary
 
