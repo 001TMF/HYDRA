@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}System{% endblock %}
+{% block content %}
+<h1>System Health</h1>
+
+<div class="card-row" hx-get="/api/system/status" hx-trigger="every 60s">
+    <div class="card">
+        <h3>Agent State</h3>
+        {% if agent_state == "running" %}
+        <span class="status-ok">RUNNING</span>
+        {% else %}
+        <span class="status-warn">PAUSED</span>
+        {% endif %}
+    </div>
+    <div class="card">
+        <h3>Fill Journal</h3>
+        {% if db_status.fill_journal == "ok" %}
+        <span class="status-ok">OK</span>
+        {% else %}
+        <span class="status-alert">UNAVAILABLE</span>
+        {% endif %}
+    </div>
+    <div class="card">
+        <h3>Experiment Journal</h3>
+        {% if db_status.experiment_journal == "ok" %}
+        <span class="status-ok">OK</span>
+        {% else %}
+        <span class="status-alert">UNAVAILABLE</span>
+        {% endif %}
+    </div>
+</div>
+
+{% if reconciliation %}
+<h2>Reconciliation Metrics</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Fills Analyzed</td><td>{{ reconciliation.n_fills }}</td></tr>
+            <tr><td>Mean Predicted Slippage</td><td>{{ "%.4f"|format(reconciliation.mean_predicted) }}</td></tr>
+            <tr><td>Mean Actual Slippage</td><td>{{ "%.4f"|format(reconciliation.mean_actual) }}</td></tr>
+            <tr><td>Bias</td><td>{{ "%.4f"|format(reconciliation.bias) }}</td></tr>
+            <tr><td>RMSE</td><td>{{ "%.4f"|format(reconciliation.rmse) }}</td></tr>
+            <tr><td>Correlation</td><td>{{ "%.4f"|format(reconciliation.correlation) }}</td></tr>
+            <tr><td>Pessimism Multiplier</td><td>{{ "%.2f"|format(reconciliation.pessimism_multiplier) }}</td></tr>
+            <tr><td>95th Pctl Predicted</td><td>{{ "%.4f"|format(reconciliation.percentile_95_predicted) }}</td></tr>
+            <tr><td>95th Pctl Actual</td><td>{{ "%.4f"|format(reconciliation.percentile_95_actual) }}</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<h2>Configuration</h2>
+<div class="card">
+    <ul>
+        <li>Dashboard: read-only monitoring (control via CLI)</li>
+        <li>IB Gateway: configure via docker-compose.yml</li>
+        <li>Agent: pause/resume via <code>hydra pause</code> / <code>hydra run</code></li>
+    </ul>
+</div>
+{% endblock %}

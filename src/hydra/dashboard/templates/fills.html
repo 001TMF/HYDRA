@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Fills{% endblock %}
+{% block content %}
+<h1>Fill Journal ({{ fill_count }} fills)</h1>
+
+{% if reconciliation %}
+<div class="card">
+    <h3>Reconciliation Summary</h3>
+    <div class="card-row">
+        <div class="stat">
+            <span class="label">Bias</span>
+            <span class="metric-sm">{{ "%.4f"|format(reconciliation.bias) }}</span>
+        </div>
+        <div class="stat">
+            <span class="label">RMSE</span>
+            <span class="metric-sm">{{ "%.4f"|format(reconciliation.rmse) }}</span>
+        </div>
+        <div class="stat">
+            <span class="label">Correlation</span>
+            <span class="metric-sm">{{ "%.4f"|format(reconciliation.correlation) }}</span>
+        </div>
+        <div class="stat">
+            <span class="label">Pessimism Multiplier</span>
+            <span class="metric-sm">{{ "%.2f"|format(reconciliation.pessimism_multiplier) }}</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="fills-table" hx-get="/fills" hx-trigger="every 60s" hx-select="#fills-table" hx-target="#fills-table" hx-swap="outerHTML">
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Symbol</th>
+            <th>Dir</th>
+            <th>Contracts</th>
+            <th>Order Price</th>
+            <th>Fill Price</th>
+            <th>Predicted Slip</th>
+            <th>Actual Slip</th>
+            <th>Latency(ms)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if fills %}
+        {% for fill in fills %}
+        <tr>
+            <td>{{ fill.timestamp[:19] }}</td>
+            <td>{{ fill.symbol }}</td>
+            <td class="{% if fill.direction == 1 %}status-ok{% else %}status-alert{% endif %}">
+                {% if fill.direction == 1 %}BUY{% else %}SELL{% endif %}
+            </td>
+            <td>{{ fill.n_contracts }}</td>
+            <td>{{ "%.4f"|format(fill.order_price) }}</td>
+            <td>{{ "%.4f"|format(fill.fill_price) }}</td>
+            <td>{{ "%.4f"|format(fill.predicted_slippage) }}</td>
+            <td>{{ "%.4f"|format(fill.actual_slippage) }}</td>
+            <td>{{ "%.1f"|format(fill.fill_latency_ms) }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr><td colspan="9">No fills recorded yet</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

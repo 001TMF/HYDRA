@@ -11,11 +11,11 @@
 <body>
     <nav>
         <div class="nav-brand">HYDRA</div>
-        <a href="/">Overview</a>
-        <a href="/fills">Fills</a>
-        <a href="/agent">Agent</a>
-        <a href="/drift">Drift</a>
-        <a href="/system">System</a>
+        <a href="/" {% if active_page == "overview" %}class="active"{% endif %}>Overview</a>
+        <a href="/fills" {% if active_page == "fills" %}class="active"{% endif %}>Fills</a>
+        <a href="/agent" {% if active_page == "agent" %}class="active"{% endif %}>Agent</a>
+        <a href="/drift" {% if active_page == "drift" %}class="active"{% endif %}>Drift</a>
+        <a href="/system" {% if active_page == "system" %}class="active"{% endif %}>System</a>
     </nav>
     <main>
         {% block content %}{% endblock %}

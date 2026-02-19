@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Drift{% endblock %}
+{% block content %}
+<h1>Drift Monitoring</h1>
+
+<div class="card">
+    <p>Drift detection runs as part of the daily agent cycle. The following metrics are monitored:</p>
+</div>
+
+<h2>Performance Drift</h2>
+<div class="card-row">
+    <div class="card">
+        <h3>Sharpe Ratio</h3>
+        <div class="label">Threshold: &lt; 0.0 OOS</div>
+        <div class="label">Detection: rolling window comparison</div>
+    </div>
+    <div class="card">
+        <h3>Max Drawdown</h3>
+        <div class="label">Threshold: &gt; 15%</div>
+        <div class="label">Detection: peak-to-trough tracking</div>
+    </div>
+    <div class="card">
+        <h3>Hit Rate</h3>
+        <div class="label">Threshold: &lt; 45%</div>
+        <div class="label">Detection: rolling accuracy window</div>
+    </div>
+    <div class="card">
+        <h3>Calibration (Brier Score)</h3>
+        <div class="label">Threshold: &gt; 0.3</div>
+        <div class="label">Detection: probability calibration check</div>
+    </div>
+</div>
+
+<h2>Feature Drift</h2>
+<div class="card-row">
+    <div class="card">
+        <h3>PSI</h3>
+        <div class="label">Population Stability Index</div>
+        <div class="label">Threshold: &gt; 0.2</div>
+        <div class="label">Detects: distribution shift in feature values</div>
+    </div>
+    <div class="card">
+        <h3>KS Test</h3>
+        <div class="label">Kolmogorov-Smirnov Test</div>
+        <div class="label">Threshold: p-value &lt; 0.05</div>
+        <div class="label">Detects: distributional changes between windows</div>
+    </div>
+    <div class="card">
+        <h3>ADWIN</h3>
+        <div class="label">Adaptive Windowing</div>
+        <div class="label">Library: river v0.23</div>
+        <div class="label">Detects: streaming mean shifts in real-time</div>
+    </div>
+    <div class="card">
+        <h3>CUSUM</h3>
+        <div class="label">Cumulative Sum</div>
+        <div class="label">Threshold: 5.0 (configurable)</div>
+        <div class="label">Detects: sustained directional drift</div>
+    </div>
+</div>
+
+<div class="card">
+    <p>Run <code>hydra diagnose</code> via CLI for a real-time drift report.</p>
+</div>
+{% endblock %}

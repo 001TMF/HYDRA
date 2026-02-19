@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<h1>HYDRA Overview</h1>
+
+<div class="card-row">
+    <div class="card">
+        <h3>Fill Count</h3>
+        <div class="metric">{{ fill_count }}</div>
+        <div class="label">total fills</div>
+    </div>
+
+    <div class="card">
+        <h3>Agent State</h3>
+        <div id="agent-badge" hx-get="/api/agent/state" hx-trigger="every 60s" hx-swap="innerHTML">
+            {% if agent_state == "running" %}
+            <span class="status-ok">RUNNING</span>
+            {% else %}
+            <span class="status-warn">PAUSED</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Live Status</h3>
+        <div hx-ext="sse" sse-connect="/api/sse/cycle-status" sse-swap="cycle_update">
+            Connecting...
+        </div>
+    </div>
+</div>
+
+<h2>Recent Activity</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Symbol</th>
+            <th>Direction</th>
+            <th>Slippage</th>
+        </tr>
+    </thead>
+    <tbody id="recent-fills" hx-get="/api/fills/recent" hx-trigger="every 60s" hx-swap="innerHTML">
+        {% if recent_fills %}
+        {% for fill in recent_fills %}
+        <tr>
+            <td>{{ fill.timestamp[:19] }}</td>
+            <td>{{ fill.symbol }}</td>
+            <td class="{% if fill.direction == 1 %}status-ok{% else %}status-alert{% endif %}">
+                {% if fill.direction == 1 %}BUY{% else %}SELL{% endif %}
+            </td>
+            <td>{{ "%.4f"|format(fill.actual_slippage) }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr><td colspan="4">No fills recorded yet</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}
