@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 4 of 5 (Agent Core + LLM Integration)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Executing Phase 4
-Last activity: 2026-02-19 -- Completed 04-03-PLAN.md (Diagnostician + Hypothesis Engine)
+Last activity: 2026-02-19 -- Completed 04-04-PLAN.md (Experiment Runner + Dedup + Budget)
 
-Progress: [######----] 60% (Phase 4: 3/5 plans)
+Progress: [########--] 80% (Phase 4: 4/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: 4min
 - Total execution time: 1.3 hours
 
@@ -43,6 +43,7 @@ Progress: [######----] 60% (Phase 4: 3/5 plans)
 | Phase 04 P02 | 4min | 2 tasks | 7 files |
 | Phase 04 P01 | 4min | 2 tasks | 11 files |
 | Phase 04 P03 | 5min | 2 tasks | 5 files |
+| Phase 04 P04 | 8min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,9 @@ Recent decisions affecting current work:
 - [04-03]: Config diff resolution via regex patterns (multiply, floor_div, max) -- no eval() for security
 - [04-03]: propose_multiple caps at playbook size to avoid duplicate hypotheses
 - [04-03]: LLM enhancement threshold: confidence < 0.6 triggers optional LLM call
+- [04-04]: Defensive promotion_decision filtering in load_cooldowns_from_journal -- checks field on each record, not just query filter
+- [04-04]: Config expression resolution via regex for +, -, *, / operators with "current" token (no eval())
+- [04-04]: sentence-transformers installed as blocking dependency fix when 04-01 not yet executed
 
 ### Pending Todos
 
@@ -127,6 +131,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 04-03-PLAN.md (Diagnostician + Hypothesis Engine)
+Stopped at: Completed 04-04-PLAN.md (Experiment Runner + Dedup + Budget)
 Resume file: None
-Next: Continue Phase 4 execution (04-04 through 04-05)
+Next: Continue Phase 4 execution (04-05)

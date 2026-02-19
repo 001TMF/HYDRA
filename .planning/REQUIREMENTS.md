@@ -53,12 +53,12 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **AGNT-01**: Agent runs full observe -> diagnose -> hypothesize -> experiment -> evaluate loop autonomously
 - [x] **AGNT-02**: Diagnostician performs structured triage (data audit, SHAP attribution, regime check, overfitting test) before proposing fixes
 - [x] **AGNT-03**: Hypothesis engine proposes mutations from curated playbook matched to diagnosed root causes
-- [ ] **AGNT-04**: Experiment runner executes candidate training in isolation (subprocess) with configurable timeout
+- [x] **AGNT-04**: Experiment runner executes candidate training in isolation (subprocess) with configurable timeout
 - [x] **AGNT-05**: LLM client calls DeepSeek-R1 with fallback chain (DeepSeek-R1 -> Qwen2.5 -> rule-based) and Pydantic validation on all outputs
 - [x] **AGNT-06**: Autonomy levels (supervised, semi-auto, autonomous, lockdown) are configurable and gate agent actions appropriately
 - [x] **AGNT-07**: Automatic rollback triggers on sustained performance degradation with hysteresis to prevent flapping
 - [x] **AGNT-08**: Candidate must beat champion on composite fitness across 3 of 5 independent evaluation windows for promotion
-- [ ] **AGNT-09**: Mutation budgets, semantic deduplication, and cooldowns prevent degenerate experiment loops
+- [x] **AGNT-09**: Mutation budgets, semantic deduplication, and cooldowns prevent degenerate experiment loops
 - [x] **AGNT-10**: System operates in degraded mode (rule-based fallbacks) when LLM is unavailable
 
 #### Multi-Head Architecture (Arena)
@@ -169,12 +169,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGNT-01 | Phase 4 | Pending |
 | AGNT-02 | Phase 4 | Complete |
 | AGNT-03 | Phase 4 | Complete |
-| AGNT-04 | Phase 4 | Pending |
+| AGNT-04 | Phase 4 | Complete |
 | AGNT-05 | Phase 4 | Complete |
 | AGNT-06 | Phase 4 | Complete |
 | AGNT-07 | Phase 4 | Complete |
 | AGNT-08 | Phase 4 | Complete |
-| AGNT-09 | Phase 4 | Pending |
+| AGNT-09 | Phase 4 | Complete |
 | AGNT-10 | Phase 4 | Complete |
 | AGNT-11 | Phase 4 | Pending |
 | AGNT-12 | Phase 4 | Pending |
