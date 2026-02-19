@@ -15,21 +15,14 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from enum import Enum
-
 from scipy.stats import norm
 
 
 # ---------------------------------------------------------------------------
-# Shared quality enum (will be consolidated with density.py when created)
+# Shared quality enum (canonical definition in density.py)
 # ---------------------------------------------------------------------------
 
-class DataQuality(Enum):
-    """Quality level of computed results."""
-    FULL = "full"           # >= min_liquid_strikes, all flows computed
-    DEGRADED = "degraded"   # < min_liquid_strikes, flows zeroed
-    STALE = "stale"         # data older than staleness threshold
-    MISSING = "missing"     # no data available
+from hydra.signals.options_math.density import DataQuality  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
