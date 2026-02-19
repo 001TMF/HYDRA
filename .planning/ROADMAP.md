@@ -82,29 +82,27 @@ Plans:
 - [x] 03-05-PLAN.md -- Composite fitness evaluator with 6-metric weighted scoring
 - [x] 03-06-PLAN.md -- Typer CLI with Rich formatting (status, diagnose, rollback, pause/run, journal)
 
-### Phase 4: Agent Core + LLM Integration (Multi-Headed Architecture)
-**Goal**: A multi-headed agent system where specialized "heads" (Technical, Research, Structural) compete through the sandbox arena to generate and test improvement hypotheses. The coordinator dispatches drift diagnoses to heads, ranks competing hypotheses via tournament, and promotes winners -- achieving true self-healing with multiple independent approaches running in parallel. "Cut off one head, two grow back."
+### Phase 4: Agent Core + LLM Integration (Single-Head "Honda" Version)
+**Goal**: A single-head autonomous agent loop that detects model drift, diagnoses root causes via rule-based triage, proposes mutations from a curated playbook, tests them in sandbox isolation, and promotes winners -- with optional LLM enhancement for ambiguous cases. All guardrails (autonomy, rollback, promotion, dedup) are in place. The system runs at zero token cost by default. Multi-head architecture (AGNT-11-18) deferred to future "turbocharge" phase.
 **Depends on**: Phase 3
-**Requirements**: AGNT-01, AGNT-02, AGNT-03, AGNT-04, AGNT-05, AGNT-06, AGNT-07, AGNT-08, AGNT-09, AGNT-10, AGNT-11, AGNT-12, AGNT-13, AGNT-14, AGNT-15, AGNT-16, AGNT-17, AGNT-18
+**Requirements**: AGNT-01, AGNT-02, AGNT-03, AGNT-04, AGNT-05, AGNT-06, AGNT-07, AGNT-08, AGNT-09, AGNT-10
+**Deferred**: AGNT-11, AGNT-12, AGNT-13, AGNT-14, AGNT-15, AGNT-16, AGNT-17, AGNT-18 (multi-head architecture -- future phase)
 **Success Criteria** (what must be TRUE):
   1. Single-head agent loop works end-to-end: observe-diagnose-hypothesize-experiment-evaluate with each step logged to the experiment journal
   2. LLM client calls DeepSeek-R1 with Pydantic-validated structured output and falls back through the chain (DeepSeek-R1 -> Qwen2.5 -> rule-based) when parsing fails, with parse failure rate below 5%
   3. Autonomy levels (supervised, semi-auto, autonomous, lockdown) gate agent actions appropriately -- supervised requires human approval for promotion, autonomous does not
   4. Automatic rollback triggers on sustained performance degradation with hysteresis to prevent flapping, and candidate promotion requires beating champion on composite fitness across 3 of 5 independent evaluation windows
   5. Mutation budgets, semantic deduplication (embedding similarity > 0.85 = reject), and cooldowns prevent degenerate experiment loops
-  6. Head Coordinator dispatches to multiple heads and collects competing hypotheses into a tournament bracket
-  7. Research Head can discover and propose new data signals (congressional trades, cycles, seasonal patterns) via web search, with proposals validated through sandbox before integration
-  8. Head reputation scoring tracks success rates and adjusts budgets/frequency accordingly
-**Research Flag**: This phase NEEDS deeper research before planning. Key research areas: (1) LLM structured output reliability with DeepSeek-R1 and Qwen2.5, (2) prompt engineering for financial domain reasoning, (3) mutation playbook design, (4) multi-head coordination patterns (independent vs. collaborative), (5) Research Head web search tooling and data source APIs (Senate STOCK Act, USDA, seasonal databases), (6) tournament bracket design for hypothesis ranking, (7) head reputation scoring and budget allocation strategies.
-**Plans**: 6 plans in 4 waves
+  6. System operates entirely rule-based by default with zero LLM API calls; LLM is optional enhancement
+**Research Flag**: Research complete (04-RESEARCH.md). Multi-head sections archived in `.planning/phases/04-agent-core-llm-integration/archived-multihead/`.
+**Plans**: 5 plans in 2 waves
 
 Plans:
 - [ ] 04-01-PLAN.md -- LLM client with fallback chain, task-type router, Pydantic schemas, cost tracking
-- [ ] 04-02-PLAN.md -- Autonomy gating, hysteresis rollback, 3-of-5 promotion, semantic dedup, reputation budgets
-- [ ] 04-03-PLAN.md -- Diagnostician (structured triage), hypothesis engine (mutation playbook), experiment runner (subprocess)
-- [ ] 04-04-PLAN.md -- Agent loop state machine, Head Coordinator, Arena tournament, abstract BaseHead
-- [ ] 04-05-PLAN.md -- Technical/Research/Structural heads, data source integrations, proposal system
-- [ ] 04-06-PLAN.md -- Head scheduling with reputation-adjusted frequency, integration tests
+- [ ] 04-02-PLAN.md -- Autonomy gating, hysteresis rollback, 3-of-5 promotion evaluation
+- [ ] 04-03-PLAN.md -- Diagnostician (rule-based structured triage), hypothesis engine (mutation playbook)
+- [ ] 04-04-PLAN.md -- Experiment runner (subprocess isolation), semantic dedup, mutation budgets + cooldowns
+- [ ] 04-05-PLAN.md -- Agent loop state machine wiring all modules into observe-diagnose-hypothesize-experiment-evaluate cycle
 
 ### Phase 5: Execution + Hardening
 **Goal**: The system trades on paper through Interactive Brokers with the same execution path as live, validates that simulated performance matches real fills, and demonstrates at least one successful autonomous self-healing cycle over 4+ weeks
@@ -134,5 +132,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Data Infrastructure + Options Math Engine | 6/6 | Complete    | 2026-02-19 |
 | 2. Signal Layer + Baseline Model | 5/5 | Complete    | 2026-02-19 |
 | 3. Sandbox + Experiment Infrastructure | 0/6 | Complete    | 2026-02-19 |
-| 4. Agent Core + LLM Integration (Multi-Head) | 0/TBD | Not started | - |
+| 4. Agent Core + LLM Integration (Single-Head) | 0/5 | Not started | - |
 | 5. Execution + Hardening | 0/TBD | Not started | - |
