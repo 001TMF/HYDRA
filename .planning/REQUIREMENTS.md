@@ -40,7 +40,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Sandbox & Monitoring
 
-- [ ] **SBOX-01**: Market replay engine replays historical data with volume-adaptive thin-market slippage model
+- [x] **SBOX-01**: Market replay engine replays historical data with volume-adaptive thin-market slippage model
 - [x] **SBOX-02**: Model registry (MLflow) tracks all trained models with full config snapshot, metrics, and champion/candidate/archived lifecycle
 - [x] **SBOX-03**: Experiment journal logs every experiment with hypothesis, config diff, results, promotion decision, and tags
 - [x] **SBOX-04**: Observer detects model drift via rolling performance metrics (Sharpe, drawdown, hit rate, calibration) and feature distribution drift (PSI, KS, ADWIN/CUSUM)
@@ -141,7 +141,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MODL-03 | Phase 2 | Complete |
 | MODL-04 | Phase 2 | Complete |
 | MODL-05 | Phase 2 | Complete |
-| SBOX-01 | Phase 3 | Pending |
+| SBOX-01 | Phase 3 | Complete |
 | SBOX-02 | Phase 3 | Complete |
 | SBOX-03 | Phase 3 | Complete |
 | SBOX-04 | Phase 3 | Complete |

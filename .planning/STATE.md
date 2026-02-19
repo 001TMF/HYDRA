@@ -38,6 +38,7 @@ Progress: [########--] 83% (Phase 3: 5/6 plans)
 *Updated after each plan completion*
 | Phase 03 P03 | 3min | 2 tasks | 3 files |
 | Phase 03 P04 | 3min | 2 tasks | 10 files |
+| Phase 03 P01 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 03]: [03-04]: River library (v0.23) for ADWIN adaptive windowing -- avoids reimplementing complex algorithm
 - [Phase 03]: [03-04]: ADWIN + CUSUM paired per streaming metric for complementary drift detection
 - [Phase 03]: [03-04]: Epsilon smoothing (1e-4) with re-normalization for PSI zero-bin handling
+- [Phase 03]: [03-01]: Self-contained metrics in replay.py to avoid circular import with evaluation.py
+- [Phase 03]: [03-01]: Observer callback pattern (add_callback) for non-intrusive drift monitoring hooks
+- [Phase 03]: [03-01]: Rolling volatility 20-bar lookback, 0.02 default for insufficient data
 
 ### Pending Todos
 
