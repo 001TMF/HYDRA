@@ -17,7 +17,6 @@ import math
 from dataclasses import dataclass, field
 from enum import Enum
 
-import numpy as np
 from scipy.stats import norm
 
 
