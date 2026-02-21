@@ -50,7 +50,7 @@ def _build_runner(data_dir: Path):
 
     breakers = CircuitBreakerManager()
     risk_gate = RiskGate(broker=broker, breakers=breakers)
-    order_manager = OrderManager(broker=broker, risk_gate=risk_gate)
+    order_manager = OrderManager(risk_gate=risk_gate)
     agent_loop = AgentLoop(journal=experiment_journal)
     model = BaselineModel()
     reconciler = SlippageReconciler(fill_journal)
