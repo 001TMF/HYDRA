@@ -11,7 +11,8 @@ COPY pyproject.toml uv.lock ./
 # Install dependencies only (project not yet available)
 RUN uv sync --frozen --no-dev --no-install-project
 
-# Copy source code
+# Copy source code and README (required by pyproject.toml)
+COPY README.md ./
 COPY src/ ./src/
 
 # Install the project itself (deps already cached)
