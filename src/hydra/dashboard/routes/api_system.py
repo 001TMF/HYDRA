@@ -44,3 +44,17 @@ async def disk_usage(request: Request):
     runner = getattr(request.app.state, "runner", None)
     data = DashboardData(request.app.state.data_dir, runner)
     return JSONResponse(content=data.get_disk_usage())
+
+
+@router.post("/trigger-cycle")
+async def trigger_cycle(request: Request):
+    """Trigger an immediate daily cycle via the runner."""
+    runner = getattr(request.app.state, "runner", None)
+    if runner is None:
+        return JSONResponse(
+            content={"error": "Runner not active"}, status_code=503
+        )
+    import asyncio
+
+    asyncio.create_task(runner.run_daily_cycle())
+    return JSONResponse(content={"status": "cycle_triggered"})
