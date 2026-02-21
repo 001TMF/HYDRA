@@ -27,6 +27,10 @@ def _build_runner(data_dir: Path):
     Mirrors the construction logic from CLI. Returns the runner instance.
     """
     from hydra.agent.loop import AgentLoop
+    from hydra.data.ingestion.ib_futures import IBFuturesIngestPipeline
+    from hydra.data.ingestion.ib_options import IBOptionsIngestPipeline
+    from hydra.data.store.feature_store import FeatureStore
+    from hydra.data.store.parquet_lake import ParquetLake
     from hydra.execution.broker import BrokerGateway
     from hydra.execution.fill_journal import FillJournal
     from hydra.execution.order_manager import OrderManager
@@ -49,6 +53,16 @@ def _build_runner(data_dir: Path):
     model = BaselineModel()
     reconciler = SlippageReconciler(fill_journal)
 
+    # Data ingestion pipelines (IB Gateway)
+    parquet_lake = ParquetLake(data_dir / "lake")
+    feature_store = FeatureStore(data_dir / "feature_store.db")
+    ib_futures = IBFuturesIngestPipeline(
+        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store
+    )
+    ib_options = IBOptionsIngestPipeline(
+        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store
+    )
+
     return PaperTradingRunner(
         broker=broker,
         risk_gate=risk_gate,
@@ -57,6 +71,7 @@ def _build_runner(data_dir: Path):
         agent_loop=agent_loop,
         model=model,
         reconciler=reconciler,
+        ingestion_pipelines=[ib_futures, ib_options],
     )
 
 

@@ -25,6 +25,8 @@ services:
       HYDRA_DATA_DIR: /data
       HYDRA_START_RUNNER: "true"       # Activate PaperTradingRunner via lifespan (06-03 Task 3)
       TRADING_MODE: ${TRADING_MODE:-paper}
+      HYDRA_MARKET: ${HYDRA_MARKET:-HE}
+      HYDRA_EXCHANGE: ${HYDRA_EXCHANGE:-GLOBEX}
     volumes:
       - hydra-data:/data
     ports:

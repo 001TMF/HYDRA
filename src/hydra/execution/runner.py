@@ -92,6 +92,7 @@ class PaperTradingRunner:
         reconciler: SlippageReconciler,
         feature_assembler: FeatureAssembler | None = None,
         config: dict | None = None,
+        ingestion_pipelines: list | None = None,
     ) -> None:
         self._broker = broker
         self._risk_gate = risk_gate
@@ -101,6 +102,7 @@ class PaperTradingRunner:
         self._model = model
         self._reconciler = reconciler
         self._feature_assembler = feature_assembler
+        self._ingestion_pipelines = ingestion_pipelines or []
 
         cfg = config or {}
         self._schedule_hour: int = cfg.get("schedule_hour", 14)
@@ -246,6 +248,20 @@ class PaperTradingRunner:
             daily_pnl = daily_pnl / current_equity  # Normalize to fraction
             position_value = position_value / current_equity
             peak_equity = max(peak_equity, current_equity)
+
+        # ------------------------------------------------------------------
+        # 2.5 Run data ingestion (IB pipelines)
+        # ------------------------------------------------------------------
+        if self._ingestion_pipelines:
+            for pipeline in self._ingestion_pipelines:
+                try:
+                    await pipeline.run_async(self._market, datetime.now(timezone.utc))
+                except Exception as exc:
+                    logger.warning(
+                        "ingestion_failed",
+                        pipeline=type(pipeline).__name__,
+                        error=str(exc),
+                    )
 
         # ------------------------------------------------------------------
         # 3. Run agent loop (self-healing)
