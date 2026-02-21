@@ -38,6 +38,7 @@ def _build_runner(data_dir: Path):
     from hydra.execution.risk_gate import RiskGate
     from hydra.execution.runner import PaperTradingRunner
     from hydra.model.baseline import BaselineModel
+    from hydra.risk.circuit_breakers import CircuitBreakerManager
     from hydra.sandbox.journal import ExperimentJournal
 
     fill_journal = FillJournal(data_dir / "fill_journal.db")
@@ -47,7 +48,8 @@ def _build_runner(data_dir: Path):
     port = int(os.environ.get("IB_GATEWAY_PORT", "4002"))
     broker = BrokerGateway(host=host, port=port, client_id=1)
 
-    risk_gate = RiskGate(broker=broker)
+    breakers = CircuitBreakerManager()
+    risk_gate = RiskGate(broker=broker, breakers=breakers)
     order_manager = OrderManager(broker=broker, risk_gate=risk_gate)
     agent_loop = AgentLoop(journal=experiment_journal)
     model = BaselineModel()
