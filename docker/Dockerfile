@@ -8,11 +8,14 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # Copy dependency files first for layer caching
 COPY pyproject.toml uv.lock ./
 
-# Install production dependencies (no dev group)
-RUN uv sync --frozen --no-dev
+# Install dependencies only (project not yet available)
+RUN uv sync --frozen --no-dev --no-install-project
 
 # Copy source code
 COPY src/ ./src/
+
+# Install the project itself (deps already cached)
+RUN uv sync --frozen --no-dev
 
 # Create data directory for SQLite DBs and logs
 RUN mkdir -p /data/logs
