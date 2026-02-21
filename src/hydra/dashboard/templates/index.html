@@ -3,56 +3,104 @@
 {% block content %}
 <h1>HYDRA Overview</h1>
 
-<div class="card-row">
-    <div class="card">
-        <h3>Fill Count</h3>
-        <div class="metric">{{ fill_count }}</div>
-        <div class="label">total fills</div>
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div class="kpi-value">{{ fill_count }}</div>
+        <div class="kpi-label">Total Fills</div>
     </div>
-
-    <div class="card">
-        <h3>Agent State</h3>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ experiment_count }}</div>
+        <div class="kpi-label">Experiments</div>
+    </div>
+    <div class="kpi-card">
         <div id="agent-badge" hx-get="/api/agent/state" hx-trigger="every 60s" hx-swap="innerHTML">
             {% if agent_state == "running" %}
-            <span class="status-ok">RUNNING</span>
+            <div class="kpi-value status-ok">RUNNING</div>
             {% else %}
-            <span class="status-warn">PAUSED</span>
+            <div class="kpi-value status-warn">PAUSED</div>
             {% endif %}
         </div>
+        <div class="kpi-label">Agent State</div>
     </div>
-
-    <div class="card">
-        <h3>Live Status</h3>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ champion_version or "—" }}</div>
+        <div class="kpi-label">Champion Model</div>
+    </div>
+    <div class="kpi-card">
         <div hx-ext="sse" sse-connect="/api/sse/cycle-status" sse-swap="cycle_update">
-            Connecting...
+            <div class="kpi-value" style="font-size:1rem">Connecting...</div>
         </div>
+        <div class="kpi-label">Live Status</div>
     </div>
 </div>
+
+<div class="health-strip">
+    {% for comp in components %}
+    <div class="health-dot {{ comp.status }}">{{ comp.name }}</div>
+    {% endfor %}
+</div>
+
+{% if slippage_data %}
+<div class="chart-container">
+    <h3>Slippage: Predicted vs Actual (Last 30 Fills)</h3>
+    <canvas id="slippageScatter"></canvas>
+</div>
+<script>
+(function() {
+    const data = {{ slippage_data | tojson }};
+    new Chart(document.getElementById('slippageScatter'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Fills',
+                data: data.map(d => ({x: d[0], y: d[1]})),
+                backgroundColor: 'rgba(78, 204, 163, 0.6)',
+                pointRadius: 5,
+            }, {
+                label: 'Perfect',
+                data: [{x: 0, y: 0}, {x: Math.max(...data.map(d => Math.max(d[0], d[1])), 0.1), y: Math.max(...data.map(d => Math.max(d[0], d[1])), 0.1)}],
+                type: 'line',
+                borderColor: 'rgba(233, 69, 96, 0.5)',
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#a0a0b8' } } },
+            scales: {
+                x: { title: { display: true, text: 'Predicted', color: '#a0a0b8' }, ticks: { color: '#808098' }, grid: { color: '#0f3460' } },
+                y: { title: { display: true, text: 'Actual', color: '#a0a0b8' }, ticks: { color: '#808098' }, grid: { color: '#0f3460' } }
+            }
+        }
+    });
+})();
+</script>
+{% endif %}
 
 <h2>Recent Activity</h2>
 <table>
     <thead>
         <tr>
             <th>Time</th>
-            <th>Symbol</th>
-            <th>Direction</th>
-            <th>Slippage</th>
+            <th>Type</th>
+            <th>Summary</th>
+            <th>Status</th>
         </tr>
     </thead>
-    <tbody id="recent-fills" hx-get="/api/fills/recent" hx-trigger="every 60s" hx-swap="innerHTML">
-        {% if recent_fills %}
-        {% for fill in recent_fills %}
+    <tbody id="recent-activity">
+        {% if recent_activity %}
+        {% for item in recent_activity %}
         <tr>
-            <td>{{ fill.timestamp[:19] }}</td>
-            <td>{{ fill.symbol }}</td>
-            <td class="{% if fill.direction == 1 %}status-ok{% else %}status-alert{% endif %}">
-                {% if fill.direction == 1 %}BUY{% else %}SELL{% endif %}
-            </td>
-            <td>{{ "%.4f"|format(fill.actual_slippage) }}</td>
+            <td>{{ item.timestamp[:19] }}</td>
+            <td><span class="badge badge-{{ item.badge }}">{{ item.type }}</span></td>
+            <td>{{ item.summary }}</td>
+            <td class="status-{{ item.status_color }}">{{ item.status }}</td>
         </tr>
         {% endfor %}
         {% else %}
-        <tr><td colspan="4">No fills recorded yet</td></tr>
+        <tr><td colspan="4">No activity recorded yet</td></tr>
         {% endif %}
     </tbody>
 </table>

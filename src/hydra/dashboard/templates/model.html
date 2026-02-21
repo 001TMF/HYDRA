@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Model{% endblock %}
+{% block content %}
+<h1>Model Registry</h1>
+
+{% if champion_info %}
+<div class="card">
+    <h3>Champion Model</h3>
+    <ul class="config-list">
+        <li><span class="config-key">Version</span><span class="config-value">v{{ champion_info.version }}</span></li>
+        <li><span class="config-key">Run ID</span><span class="config-value"><code>{{ champion_info.run_id[:12] }}</code></span></li>
+        <li><span class="config-key">Created At</span><span class="config-value">{{ champion_info.created_at }}</span></li>
+        {% if champion_info.tags %}
+        {% for k, v in champion_info.tags.items() %}
+        <li><span class="config-key">{{ k }}</span><span class="config-value">{{ v }}</span></li>
+        {% endfor %}
+        {% endif %}
+    </ul>
+</div>
+
+{% if fitness %}
+<h2>Fitness Score Breakdown</h2>
+<div class="chart-container">
+    <canvas id="fitnessChart"></canvas>
+</div>
+<script>
+(function() {
+    const fitness = {{ fitness | tojson }};
+    const labels = Object.keys(fitness);
+    const values = Object.values(fitness);
+    new Chart(document.getElementById('fitnessChart'), {
+        type: 'bar',
+        data: {
+            labels: labels.map(l => l.replace(/_/g, ' ')),
+            datasets: [{
+                label: 'Score',
+                data: values,
+                backgroundColor: 'rgba(78, 204, 163, 0.6)',
+                borderColor: '#4ecca3',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#808098' }, grid: { color: '#0f3460' } },
+                y: { ticks: { color: '#a0a0b8' }, grid: { color: '#0f3460' } }
+            }
+        }
+    });
+})();
+</script>
+{% endif %}
+
+{% if feature_importance %}
+<h2>Feature Importance</h2>
+<div class="chart-container">
+    <canvas id="featureChart"></canvas>
+</div>
+<script>
+(function() {
+    const importance = {{ feature_importance | tojson }};
+    const sorted = Object.entries(importance).sort((a, b) => b[1] - a[1]).slice(0, 20);
+    new Chart(document.getElementById('featureChart'), {
+        type: 'bar',
+        data: {
+            labels: sorted.map(d => d[0]),
+            datasets: [{
+                label: 'Importance',
+                data: sorted.map(d => d[1]),
+                backgroundColor: 'rgba(240, 165, 0, 0.6)',
+                borderColor: '#f0a500',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#808098' }, grid: { color: '#0f3460' } },
+                y: { ticks: { color: '#a0a0b8', font: { size: 11 } }, grid: { color: '#0f3460' } }
+            }
+        }
+    });
+})();
+</script>
+{% endif %}
+
+{% if model_params %}
+<h2>Model Parameters</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for k, v in model_params.items() %}
+            <tr>
+                <td>{{ k }}</td>
+                <td><code>{{ v }}</code></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if versions %}
+<h2>Version History</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Aliases</th>
+            <th>Created At</th>
+            <th>Run ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for v in versions %}
+        <tr>
+            <td>v{{ v.version }}</td>
+            <td>
+                {% for alias in v.aliases %}
+                <span class="badge {% if alias == 'champion' %}badge-ok{% elif alias == 'archived' %}badge-warn{% else %}badge-muted{% endif %}">{{ alias }}</span>
+                {% endfor %}
+                {% if not v.aliases %}—{% endif %}
+            </td>
+            <td>{{ v.created_at }}</td>
+            <td><code>{{ v.run_id[:12] }}</code></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% else %}
+<div class="card muted">
+    <h3>No Model Trained Yet</h3>
+    <p>Train a baseline model to see champion info, feature importance, and version history.</p>
+    <p><code>hydra train</code></p>
+</div>
+{% endif %}
+{% endblock %}

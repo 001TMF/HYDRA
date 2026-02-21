@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
-from hydra.dashboard.routes import api, pages, sse
+from hydra.dashboard.routes import api, api_data, api_model, api_agent, api_system, pages, sse
 
 logger = structlog.get_logger(__name__)
 
@@ -165,5 +165,9 @@ def create_app(
     app.include_router(pages.router)
     app.include_router(api.router, prefix="/api")
     app.include_router(sse.router, prefix="/api/sse")
+    app.include_router(api_model.router, prefix="/api/model")
+    app.include_router(api_agent.router, prefix="/api/agent")
+    app.include_router(api_data.router, prefix="/api/data")
+    app.include_router(api_system.router, prefix="/api/system")
 
     return app

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Data{% endblock %}
+{% block content %}
+<h1>Data &amp; Feature Store</h1>
+
+{% if fs_stats.count > 0 %}
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div class="kpi-value">{{ fs_stats.count }}</div>
+        <div class="kpi-label">Total Features</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ fs_stats.markets | length }}</div>
+        <div class="kpi-label">Markets</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ fs_stats.features | length }}</div>
+        <div class="kpi-label">Distinct Features</div>
+    </div>
+</div>
+
+<h2>Markets</h2>
+<div class="health-strip">
+    {% for m in fs_stats.markets %}
+    <div class="health-dot ok">{{ m }}</div>
+    {% endfor %}
+</div>
+
+<h2>Latest Features</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Feature Name</th>
+            <th>Value</th>
+            <th>Quality</th>
+            <th>Last Updated</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in latest_features %}
+        <tr>
+            <td>{{ f.feature_name }}</td>
+            <td>{{ "%.4f"|format(f.value) if f.value is not none else "—" }}</td>
+            <td class="{% if f.quality == 'normal' %}status-ok{% elif f.quality == 'degraded' %}status-warn{% else %}status-alert{% endif %}">{{ f.quality }}</td>
+            <td>{{ f.last_updated[:19] if f.last_updated else "—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="card muted">
+    <h3>No Features Ingested Yet</h3>
+    <p>Run the ingestion pipeline to populate the feature store.</p>
+    <p><code>hydra ingest</code></p>
+</div>
+{% endif %}
+
+<h2>Ingestion Pipelines</h2>
+<div class="card-row">
+    <div class="card">
+        <h3>IB Futures Pipeline</h3>
+        <div class="label">Status: {{ ib_futures_status or "Not started" }}</div>
+    </div>
+    <div class="card">
+        <h3>IB Options Pipeline</h3>
+        <div class="label">Status: {{ ib_options_status or "Not started" }}</div>
+    </div>
+</div>
+{% endblock %}

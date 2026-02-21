@@ -38,10 +38,37 @@ async def cycle_status(request: Request):
                     if fj is not None:
                         fj.close()
 
+            experiment_count = 0
+            exp_db = data_dir / "experiment_journal.db"
+            if exp_db.exists():
+                ej = None
+                try:
+                    from hydra.sandbox.journal import ExperimentJournal
+
+                    ej = ExperimentJournal(exp_db)
+                    experiment_count = ej.count()
+                except Exception:
+                    pass
+                finally:
+                    if ej is not None:
+                        ej.close()
+
+            champion_version = None
+            try:
+                from hydra.sandbox.registry import ModelRegistry
+
+                reg = ModelRegistry()
+                info = reg.get_champion_info()
+                champion_version = info.get("version")
+            except Exception:
+                pass
+
             data = json.dumps(
                 {
                     "agent_state": get_state().value,
                     "fill_count": fill_count,
+                    "experiment_count": experiment_count,
+                    "champion_version": champion_version,
                     "timestamp": datetime.now(UTC).isoformat(),
                 }
             )

@@ -3,21 +3,82 @@
 {% block content %}
 <h1>Agent Loop</h1>
 
-<div class="card-row">
-    <div class="card">
-        <h3>Agent State</h3>
-        {% if agent_state == "running" %}
-        <span class="status-ok">RUNNING</span>
-        {% else %}
-        <span class="status-warn">PAUSED</span>
-        {% endif %}
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div id="agent-badge">
+            {% if agent_state == "running" %}
+            <div class="kpi-value status-ok">RUNNING</div>
+            {% else %}
+            <div class="kpi-value status-warn">PAUSED</div>
+            {% endif %}
+        </div>
+        <div class="kpi-label">Agent State</div>
     </div>
-    <div class="card">
-        <h3>Experiments</h3>
-        <div class="metric">{{ experiment_count }}</div>
-        <div class="label">experiments logged</div>
+    {% if exp_summary %}
+    <div class="kpi-card">
+        <div class="kpi-value">{{ exp_summary.total }}</div>
+        <div class="kpi-label">Total Experiments</div>
     </div>
+    <div class="kpi-card">
+        <div class="kpi-value status-ok">{{ exp_summary.promoted }}</div>
+        <div class="kpi-label">Promoted</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value status-alert">{{ exp_summary.rejected }}</div>
+        <div class="kpi-label">Rejected</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value">{{ exp_summary.rate }}%</div>
+        <div class="kpi-label">Promotion Rate</div>
+    </div>
+    {% else %}
+    <div class="kpi-card">
+        <div class="kpi-value">{{ experiment_count }}</div>
+        <div class="kpi-label">Total Experiments</div>
+    </div>
+    {% endif %}
 </div>
+
+{% if mutation_breakdown %}
+<h2>Mutation Type Breakdown</h2>
+<div class="chart-container">
+    <canvas id="mutationChart"></canvas>
+</div>
+<script>
+(function() {
+    const breakdown = {{ mutation_breakdown | tojson }};
+    const labels = Object.keys(breakdown);
+    const values = Object.values(breakdown);
+    new Chart(document.getElementById('mutationChart'), {
+        type: 'bar',
+        data: {
+            labels: labels.map(l => l.replace(/_/g, ' ')),
+            datasets: [{
+                label: 'Count',
+                data: values,
+                backgroundColor: [
+                    'rgba(78, 204, 163, 0.6)',
+                    'rgba(240, 165, 0, 0.6)',
+                    'rgba(233, 69, 96, 0.6)',
+                    'rgba(160, 160, 184, 0.6)',
+                    'rgba(15, 52, 96, 0.6)',
+                ],
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#808098' }, grid: { color: '#0f3460' } },
+                y: { ticks: { color: '#a0a0b8' }, grid: { color: '#0f3460' } }
+            }
+        }
+    });
+})();
+</script>
+{% endif %}
 
 <h2>Experiment History</h2>
 {% if experiments %}
@@ -33,21 +94,22 @@
     </thead>
     <tbody>
         {% for exp in experiments %}
-        <tr>
+        <tr class="expandable-row" hx-get="/api/agent/experiments/{{ exp.id }}" hx-target="#detail-{{ exp.id }}" hx-swap="innerHTML" hx-trigger="click once">
             <td>{{ exp.id }}</td>
             <td>{{ exp.created_at[:19] }}</td>
-            <td>{{ exp.hypothesis }}</td>
-            <td>{{ exp.mutation_type }}</td>
+            <td>{{ exp.hypothesis[:60] }}{% if exp.hypothesis|length > 60 %}...{% endif %}</td>
+            <td><span class="badge badge-muted">{{ exp.mutation_type }}</span></td>
             <td class="{% if exp.promotion_decision == 'promoted' %}status-ok{% elif exp.promotion_decision == 'rejected' %}status-alert{% else %}status-warn{% endif %}">
                 {{ exp.promotion_decision }}
             </td>
         </tr>
+        <tr id="detail-{{ exp.id }}"><td colspan="5"></td></tr>
         {% endfor %}
     </tbody>
 </table>
 {% else %}
-<div class="card">
-    <p>No experiments recorded yet.</p>
+<div class="card muted">
+    <p>No experiments recorded yet. The agent loop will create experiments automatically.</p>
 </div>
 {% endif %}
 {% endblock %}

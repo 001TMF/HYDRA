@@ -3,31 +3,35 @@
 {% block content %}
 <h1>System Health</h1>
 
-<div class="card-row" hx-get="/api/system/status" hx-trigger="every 60s">
-    <div class="card">
-        <h3>Agent State</h3>
-        {% if agent_state == "running" %}
-        <span class="status-ok">RUNNING</span>
-        {% else %}
-        <span class="status-warn">PAUSED</span>
-        {% endif %}
+<h2>Component Health</h2>
+<table class="component-matrix">
+    <thead>
+        <tr>
+            <th>Component</th>
+            <th>Status</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for comp in components %}
+        <tr>
+            <td>{{ comp.name }}</td>
+            <td class="status-cell status-{{ comp.status }}">{{ comp.status | upper }}</td>
+            <td>{{ comp.details }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Circuit Breakers</h2>
+<div class="card-row">
+    {% for cb in circuit_breakers %}
+    <div class="breaker-card">
+        <h3>{{ cb.name | replace("_", " ") | title }}</h3>
+        <div class="breaker-state status-{{ cb.color }}">{{ cb.state }}</div>
+        <div class="breaker-threshold">Threshold: {{ cb.threshold }}</div>
     </div>
-    <div class="card">
-        <h3>Fill Journal</h3>
-        {% if db_status.fill_journal == "ok" %}
-        <span class="status-ok">OK</span>
-        {% else %}
-        <span class="status-alert">UNAVAILABLE</span>
-        {% endif %}
-    </div>
-    <div class="card">
-        <h3>Experiment Journal</h3>
-        {% if db_status.experiment_journal == "ok" %}
-        <span class="status-ok">OK</span>
-        {% else %}
-        <span class="status-alert">UNAVAILABLE</span>
-        {% endif %}
-    </div>
+    {% endfor %}
 </div>
 
 {% if reconciliation %}
@@ -55,12 +59,35 @@
 </div>
 {% endif %}
 
-<h2>Configuration</h2>
+<h2>Runtime Configuration</h2>
 <div class="card">
-    <ul>
-        <li>Dashboard: read-only monitoring (control via CLI)</li>
-        <li>IB Gateway: configure via docker-compose.yml</li>
-        <li>Agent: pause/resume via <code>hydra pause</code> / <code>hydra run</code></li>
+    <ul class="config-list">
+        <li><span class="config-key">Data Directory</span><span class="config-value">{{ data_dir }}</span></li>
+        <li><span class="config-key">Trading Mode</span><span class="config-value">Paper</span></li>
+        <li><span class="config-key">Dashboard Mode</span><span class="config-value">Read-only monitoring</span></li>
+        <li><span class="config-key">Agent State</span><span class="config-value status-{{ 'ok' if agent_state == 'running' else 'warn' }}">{{ agent_state | upper }}</span></li>
     </ul>
+</div>
+
+<h2>Disk Usage</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Database</th>
+                <th>File</th>
+                <th>Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in disk_usage %}
+            <tr>
+                <td>{{ d.name }}</td>
+                <td><code>{{ d.file }}</code></td>
+                <td>{{ d.size }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

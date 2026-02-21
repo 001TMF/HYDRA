@@ -177,3 +177,215 @@ ul li {
 ul li:last-child {
     border-bottom: none;
 }
+
+/* --- KPI Cards --- */
+.kpi-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.kpi-card {
+    background: #16213e;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #0f3460;
+    flex: 1;
+    min-width: 160px;
+    text-align: center;
+}
+
+.kpi-card .kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #4ecca3;
+}
+
+.kpi-card .kpi-label {
+    font-size: 0.8rem;
+    color: #808098;
+    margin-top: 0.25rem;
+}
+
+/* --- Health Strip --- */
+.health-strip {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: #16213e;
+    border-radius: 8px;
+    border: 1px solid #0f3460;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.health-dot {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.health-dot::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.health-dot.ok::before { background: #4ecca3; }
+.health-dot.warn::before { background: #f0a500; }
+.health-dot.alert::before { background: #e94560; }
+.health-dot.unavailable::before { background: #606080; }
+.health-dot.error::before { background: #e94560; }
+.health-dot.muted::before { background: #606080; }
+.health-dot.unknown::before { background: #606080; }
+
+/* --- Charts --- */
+.chart-container {
+    background: #16213e;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid #0f3460;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.chart-container canvas {
+    max-height: 300px;
+}
+
+/* --- Muted/Fallback Cards --- */
+.card.muted {
+    color: #606080;
+    text-align: center;
+    padding: 2rem;
+}
+
+.card.muted h3 {
+    color: #606080;
+}
+
+/* --- Detail panels (HTMX expand) --- */
+.detail-panel {
+    background: #0f1729;
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+    border: 1px solid #0f3460;
+}
+
+.detail-panel pre {
+    background: #1a1a2e;
+    padding: 0.75rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    color: #b0b0c8;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* --- Component health matrix --- */
+.component-matrix {
+    width: 100%;
+}
+
+.component-matrix td.status-cell {
+    font-weight: 600;
+}
+
+/* --- Circuit breaker cards --- */
+.breaker-card {
+    background: #16213e;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #0f3460;
+    flex: 1;
+    min-width: 200px;
+    text-align: center;
+}
+
+.breaker-card .breaker-state {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+.breaker-card .breaker-threshold {
+    font-size: 0.85rem;
+    color: #808098;
+}
+
+/* --- Drift status banner --- */
+.drift-banner {
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.drift-banner.ok {
+    background: rgba(78, 204, 163, 0.15);
+    border: 1px solid #4ecca3;
+    color: #4ecca3;
+}
+
+.drift-banner.alert {
+    background: rgba(233, 69, 96, 0.15);
+    border: 1px solid #e94560;
+    color: #e94560;
+}
+
+/* --- Expandable rows --- */
+.expandable-row {
+    cursor: pointer;
+}
+
+.expandable-row:hover {
+    background: rgba(15, 52, 96, 0.5);
+}
+
+/* --- Config card --- */
+.config-list {
+    list-style: none;
+    padding: 0;
+}
+
+.config-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(15, 52, 96, 0.5);
+    font-size: 0.85rem;
+}
+
+.config-list li:last-child {
+    border-bottom: none;
+}
+
+.config-list .config-key {
+    color: #a0a0b8;
+}
+
+.config-list .config-value {
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+/* --- Badge styles --- */
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-ok { background: rgba(78, 204, 163, 0.2); color: #4ecca3; }
+.badge-warn { background: rgba(240, 165, 0, 0.2); color: #f0a500; }
+.badge-alert { background: rgba(233, 69, 96, 0.2); color: #e94560; }
+.badge-muted { background: rgba(96, 96, 128, 0.2); color: #606080; }

@@ -27,6 +27,46 @@
 </div>
 {% endif %}
 
+{% if slippage_data %}
+<div class="chart-container">
+    <h3>Slippage: Predicted vs Actual</h3>
+    <canvas id="slippageScatter"></canvas>
+</div>
+<script>
+(function() {
+    const data = {{ slippage_data | tojson }};
+    const maxVal = Math.max(...data.map(d => Math.max(d[0], d[1])), 0.1);
+    new Chart(document.getElementById('slippageScatter'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Fills',
+                data: data.map(d => ({x: d[0], y: d[1]})),
+                backgroundColor: 'rgba(78, 204, 163, 0.6)',
+                pointRadius: 5,
+            }, {
+                label: '45-degree line',
+                data: [{x: 0, y: 0}, {x: maxVal, y: maxVal}],
+                type: 'line',
+                borderColor: 'rgba(233, 69, 96, 0.5)',
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#a0a0b8' } } },
+            scales: {
+                x: { title: { display: true, text: 'Predicted Slippage', color: '#a0a0b8' }, ticks: { color: '#808098' }, grid: { color: '#0f3460' } },
+                y: { title: { display: true, text: 'Actual Slippage', color: '#a0a0b8' }, ticks: { color: '#808098' }, grid: { color: '#0f3460' } }
+            }
+        }
+    });
+})();
+</script>
+{% endif %}
+
 <div id="fills-table" hx-get="/fills" hx-trigger="every 60s" hx-select="#fills-table" hx-target="#fills-table" hx-swap="outerHTML">
 <table>
     <thead>

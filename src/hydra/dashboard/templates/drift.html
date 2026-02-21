@@ -3,11 +3,88 @@
 {% block content %}
 <h1>Drift Monitoring</h1>
 
-<div class="card">
-    <p>Drift detection runs as part of the daily agent cycle. The following metrics are monitored:</p>
+{% if has_live_data and drift_report %}
+{# --- LIVE DATA MODE --- #}
+<div class="drift-banner {{ 'alert' if drift_report.needs_diagnosis else 'ok' }}">
+    {% if drift_report.needs_diagnosis %}
+    DRIFT DETECTED — Diagnosis recommended
+    {% else %}
+    NO DRIFT — All metrics within thresholds
+    {% endif %}
 </div>
 
 <h2>Performance Drift</h2>
+<div class="card-row">
+    <div class="card">
+        <h3>Sharpe Ratio</h3>
+        <div class="metric-sm {% if drift_report.performance.sharpe_degraded %}status-alert{% else %}status-ok{% endif %}">
+            {{ "%.3f"|format(drift_report.performance.current_sharpe) }}
+        </div>
+        <div class="label">Threshold: &gt; 0.0</div>
+        <div class="label">{% if drift_report.performance.sharpe_degraded %}DEGRADED{% else %}OK{% endif %}</div>
+    </div>
+    <div class="card">
+        <h3>Max Drawdown</h3>
+        <div class="metric-sm {% if drift_report.performance.drawdown_degraded %}status-alert{% else %}status-ok{% endif %}">
+            {{ "%.1f"|format(drift_report.performance.current_max_drawdown * 100) }}%
+        </div>
+        <div class="label">Threshold: &lt; 15%</div>
+        <div class="label">{% if drift_report.performance.drawdown_degraded %}DEGRADED{% else %}OK{% endif %}</div>
+    </div>
+    <div class="card">
+        <h3>Hit Rate</h3>
+        <div class="metric-sm {% if drift_report.performance.hit_rate_degraded %}status-alert{% else %}status-ok{% endif %}">
+            {{ "%.1f"|format(drift_report.performance.current_hit_rate * 100) }}%
+        </div>
+        <div class="label">Threshold: &gt; 45%</div>
+        <div class="label">{% if drift_report.performance.hit_rate_degraded %}DEGRADED{% else %}OK{% endif %}</div>
+    </div>
+    <div class="card">
+        <h3>Calibration</h3>
+        <div class="metric-sm {% if drift_report.performance.calibration_degraded %}status-alert{% else %}status-ok{% endif %}">
+            {{ "%.3f"|format(drift_report.performance.current_calibration) }}
+        </div>
+        <div class="label">Threshold: &lt; 0.3</div>
+        <div class="label">{% if drift_report.performance.calibration_degraded %}DEGRADED{% else %}OK{% endif %}</div>
+    </div>
+</div>
+
+{% if drift_report.feature and drift_report.feature.features %}
+<h2>Feature Drift</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Feature</th>
+            <th>PSI</th>
+            <th>KS Statistic</th>
+            <th>KS p-value</th>
+            <th>Drifted</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in drift_report.feature.features %}
+        <tr>
+            <td>{{ f.feature_name }}</td>
+            <td>{{ "%.4f"|format(f.psi) }}</td>
+            <td>{{ "%.4f"|format(f.ks_statistic) }}</td>
+            <td>{{ "%.4f"|format(f.ks_pvalue) }}</td>
+            <td class="{% if f.drifted %}status-alert{% else %}status-ok{% endif %}">
+                {% if f.drifted %}YES{% else %}NO{% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% else %}
+{# --- FALLBACK: STATIC INFO MODE --- #}
+<div class="card muted">
+    <p>No live drift data available. Drift detection runs as part of the daily agent cycle.</p>
+    <p>Start the runner with <code>HYDRA_START_RUNNER=true</code> to see live drift metrics.</p>
+</div>
+
+<h2>Performance Drift Thresholds</h2>
 <div class="card-row">
     <div class="card">
         <h3>Sharpe Ratio</h3>
@@ -31,35 +108,32 @@
     </div>
 </div>
 
-<h2>Feature Drift</h2>
+<h2>Feature Drift Methods</h2>
 <div class="card-row">
     <div class="card">
         <h3>PSI</h3>
         <div class="label">Population Stability Index</div>
         <div class="label">Threshold: &gt; 0.2</div>
-        <div class="label">Detects: distribution shift in feature values</div>
     </div>
     <div class="card">
         <h3>KS Test</h3>
         <div class="label">Kolmogorov-Smirnov Test</div>
         <div class="label">Threshold: p-value &lt; 0.05</div>
-        <div class="label">Detects: distributional changes between windows</div>
     </div>
     <div class="card">
         <h3>ADWIN</h3>
         <div class="label">Adaptive Windowing</div>
-        <div class="label">Library: river v0.23</div>
-        <div class="label">Detects: streaming mean shifts in real-time</div>
+        <div class="label">Streaming mean shift detection</div>
     </div>
     <div class="card">
         <h3>CUSUM</h3>
         <div class="label">Cumulative Sum</div>
-        <div class="label">Threshold: 5.0 (configurable)</div>
-        <div class="label">Detects: sustained directional drift</div>
+        <div class="label">Threshold: 5.0</div>
     </div>
 </div>
 
 <div class="card">
     <p>Run <code>hydra diagnose</code> via CLI for a real-time drift report.</p>
 </div>
+{% endif %}
 {% endblock %}
