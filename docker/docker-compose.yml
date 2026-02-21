@@ -28,7 +28,7 @@ services:
     volumes:
       - hydra-data:/data
     ports:
-      - "127.0.0.1:8080:8080"         # Dashboard (localhost only)
+      - "8080:8080"                    # Dashboard (LAN accessible)
     healthcheck:
       test: ["CMD", "python", "-c",
              "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health')"]
