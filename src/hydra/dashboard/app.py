@@ -26,7 +26,14 @@ def _build_runner(data_dir: Path):
 
     Mirrors the construction logic from CLI. Returns the runner instance.
     """
+    from hydra.agent.budget import MutationBudget
+    from hydra.agent.dedup import HypothesisDeduplicator
+    from hydra.agent.diagnostician import Diagnostician
+    from hydra.agent.experiment_runner import ExperimentRunner
+    from hydra.agent.hypothesis import HypothesisEngine
     from hydra.agent.loop import AgentLoop
+    from hydra.agent.promotion import PromotionEvaluator
+    from hydra.agent.rollback import HysteresisRollbackTrigger
     from hydra.data.ingestion.ib_futures import IBFuturesIngestPipeline
     from hydra.data.ingestion.ib_options import IBOptionsIngestPipeline
     from hydra.data.store.feature_store import FeatureStore
@@ -39,7 +46,10 @@ def _build_runner(data_dir: Path):
     from hydra.execution.runner import PaperTradingRunner
     from hydra.model.baseline import BaselineModel
     from hydra.risk.circuit_breakers import CircuitBreakerManager
+    from hydra.sandbox.evaluator import CompositeEvaluator
     from hydra.sandbox.journal import ExperimentJournal
+    from hydra.sandbox.observer import DriftObserver
+    from hydra.sandbox.registry import ModelRegistry
 
     fill_journal = FillJournal(data_dir / "fill_journal.db")
     experiment_journal = ExperimentJournal(data_dir / "experiment_journal.db")
@@ -51,7 +61,19 @@ def _build_runner(data_dir: Path):
     breakers = CircuitBreakerManager()
     risk_gate = RiskGate(broker=broker, breakers=breakers)
     order_manager = OrderManager(risk_gate=risk_gate)
-    agent_loop = AgentLoop(journal=experiment_journal)
+    agent_loop = AgentLoop(
+        observer=DriftObserver(),
+        diagnostician=Diagnostician(),
+        hypothesis_engine=HypothesisEngine(),
+        experiment_runner=ExperimentRunner(),
+        evaluator=CompositeEvaluator(),
+        journal=experiment_journal,
+        registry=ModelRegistry(),
+        rollback_trigger=HysteresisRollbackTrigger(),
+        promotion_evaluator=PromotionEvaluator(),
+        deduplicator=HypothesisDeduplicator(),
+        budget=MutationBudget(),
+    )
     model = BaselineModel()
     reconciler = SlippageReconciler(fill_journal)
 
