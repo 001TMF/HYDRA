@@ -215,12 +215,10 @@ class IBOptionsIngestPipeline(IngestPipeline):
             log.info("ingestion_started")
             self._broker.ib.reqMarketDataType(3)
 
-            underlying_contract = Future(symbol=market, exchange=self._exchange)
-            qualified = await self._broker.ib.qualifyContractsAsync(underlying_contract)
-            if not qualified:
+            underlying = await self._qualify_underlying(market, log)
+            if underlying is None:
                 log.error("qualify_underlying_failed", market=market)
                 return False
-            underlying = qualified[0]
 
             underlying_price = await self._get_underlying_price(underlying, log)
             if underlying_price is None:
@@ -280,7 +278,10 @@ class IBOptionsIngestPipeline(IngestPipeline):
             ]
 
             qualified_opts = await self._broker.ib.qualifyContractsAsync(*contracts)
-            qualified_opts = [c for c in qualified_opts if c.conId and c.conId > 0]
+            qualified_opts = [
+                c for c in qualified_opts
+                if c is not None and getattr(c, "conId", None) and c.conId > 0
+            ]
 
             log.info("contracts_qualified", count=len(qualified_opts))
 
@@ -301,6 +302,56 @@ class IBOptionsIngestPipeline(IngestPipeline):
         except Exception as e:
             log.error("ingestion_failed", error=str(e), exc_info=True)
             return False
+
+    async def _qualify_underlying(self, market: str, log):
+        """Qualify the underlying futures contract for options chain lookup.
+
+        Handles ib_async 2.x returning None for ambiguous contracts by
+        using returnAll=True and selecting the front-month contract.
+        """
+        from ib_async import Future
+
+        contract = Future(symbol=market, exchange=self._exchange)
+        qualified = await self._broker.ib.qualifyContractsAsync(
+            contract, returnAll=True
+        )
+        result = qualified[0] if qualified else None
+
+        if result is None:
+            log.error("future_qualify_returned_none", market=market)
+            return None
+
+        # If ambiguous, we get a list of contracts — pick nearest expiry
+        if isinstance(result, list):
+            log.info("ambiguous_underlying_resolving", count=len(result))
+            today = datetime.now().strftime("%Y%m%d")
+            future_contracts = [
+                c for c in result
+                if c is not None
+                and getattr(c, "lastTradeDateOrContractMonth", "") >= today
+            ]
+            if not future_contracts:
+                future_contracts = [c for c in result if c is not None]
+            if not future_contracts:
+                log.error("no_valid_futures_in_ambiguous_result")
+                return None
+            result = sorted(
+                future_contracts,
+                key=lambda c: getattr(c, "lastTradeDateOrContractMonth", ""),
+            )[0]
+            log.info(
+                "front_month_underlying_selected",
+                con_id=getattr(result, "conId", None),
+                expiry=getattr(result, "lastTradeDateOrContractMonth", None),
+            )
+            return result
+
+        log.info(
+            "underlying_qualified",
+            con_id=getattr(result, "conId", None),
+            expiry=getattr(result, "lastTradeDateOrContractMonth", None),
+        )
+        return result
 
     async def _get_underlying_price(self, contract, log) -> float | None:
         """Get the underlying futures price via market-data snapshot."""

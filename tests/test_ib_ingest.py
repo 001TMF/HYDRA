@@ -430,7 +430,7 @@ async def test_ib_options_batching(
 
     call_count = [0]
 
-    def _qualify_side_effect(*contracts):
+    def _qualify_side_effect(*contracts, **kwargs):
         if call_count[0] == 0:
             call_count[0] += 1
             return [mock_underlying]

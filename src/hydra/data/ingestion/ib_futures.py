@@ -187,8 +187,6 @@ class IBFuturesIngestPipeline(IngestPipeline):
         bool
             True if the pipeline completed successfully, False otherwise.
         """
-        from ib_async import ContFuture
-
         log = logger.bind(
             pipeline="IBFuturesIngestPipeline",
             market=market,
@@ -198,12 +196,10 @@ class IBFuturesIngestPipeline(IngestPipeline):
             log.info("ingestion_started")
             self._broker.ib.reqMarketDataType(3)
 
-            contract = ContFuture(symbol=market, exchange=self._exchange)
-            qualified = await self._broker.ib.qualifyContractsAsync(contract)
-            if not qualified:
+            contract = await self._qualify_futures_contract(market, log)
+            if contract is None:
                 log.error("qualify_contract_failed", market=market)
                 return False
-            contract = qualified[0]
 
             bars = await self._fetch_historical(contract, log)
             if not bars:
@@ -234,6 +230,74 @@ class IBFuturesIngestPipeline(IngestPipeline):
         except Exception as e:
             log.error("ingestion_failed", error=str(e), exc_info=True)
             return False
+
+    async def _qualify_futures_contract(self, market: str, log):
+        """Qualify a futures contract, handling ib_async 2.x None returns.
+
+        Tries ContFuture first (ideal for historical bars). If that returns
+        None (unknown/ambiguous), falls back to Future with returnAll=True
+        and picks the nearest expiry.
+        """
+        from ib_async import ContFuture, Future
+
+        # Try ContFuture first — ideal for continuous historical data
+        contract = ContFuture(symbol=market, exchange=self._exchange)
+        qualified = await self._broker.ib.qualifyContractsAsync(contract)
+        result = qualified[0] if qualified else None
+
+        if result is not None:
+            log.info(
+                "contract_qualified",
+                contract_type="ContFuture",
+                con_id=getattr(result, "conId", None),
+            )
+            return result
+
+        log.warning("contfuture_qualify_failed_trying_future", market=market)
+
+        # Fallback: use Future with returnAll to handle ambiguity
+        contract = Future(symbol=market, exchange=self._exchange)
+        qualified = await self._broker.ib.qualifyContractsAsync(
+            contract, returnAll=True
+        )
+        result = qualified[0] if qualified else None
+
+        if result is None:
+            log.error("future_qualify_failed", market=market)
+            return None
+
+        # If ambiguous, we get a list of contracts — pick nearest expiry
+        if isinstance(result, list):
+            log.info("ambiguous_future_resolving", count=len(result))
+            # Sort by lastTradeDateOrContractMonth, pick nearest future date
+            today = datetime.now().strftime("%Y%m%d")
+            future_contracts = [
+                c for c in result
+                if c is not None
+                and getattr(c, "lastTradeDateOrContractMonth", "") >= today
+            ]
+            if not future_contracts:
+                future_contracts = [c for c in result if c is not None]
+            if not future_contracts:
+                log.error("no_valid_futures_in_ambiguous_result")
+                return None
+            result = sorted(
+                future_contracts,
+                key=lambda c: getattr(c, "lastTradeDateOrContractMonth", ""),
+            )[0]
+            log.info(
+                "front_month_selected",
+                con_id=getattr(result, "conId", None),
+                expiry=getattr(result, "lastTradeDateOrContractMonth", None),
+            )
+            return result
+
+        log.info(
+            "contract_qualified",
+            contract_type="Future",
+            con_id=getattr(result, "conId", None),
+        )
+        return result
 
     async def _fetch_historical(self, contract, log) -> list:
         """Fetch 1-day OHLCV bars via reqHistoricalDataAsync."""
