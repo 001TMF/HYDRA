@@ -80,11 +80,14 @@ def _build_runner(data_dir: Path):
     # Data ingestion pipelines (IB Gateway)
     parquet_lake = ParquetLake(data_dir / "lake")
     feature_store = FeatureStore(data_dir / "feature_store.db")
+    exchange = os.environ.get("HYDRA_EXCHANGE", "CBOT")
     ib_futures = IBFuturesIngestPipeline(
-        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store
+        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store,
+        exchange=exchange,
     )
     ib_options = IBOptionsIngestPipeline(
-        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store
+        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store,
+        exchange=exchange,
     )
 
     return PaperTradingRunner(
