@@ -56,8 +56,5 @@ async def trigger_cycle(request: Request):
         )
     import asyncio
 
-    import nest_asyncio
-
-    nest_asyncio.apply()
     asyncio.create_task(runner.run_daily_cycle())
     return JSONResponse(content={"status": "cycle_triggered"})

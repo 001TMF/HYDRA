@@ -107,6 +107,11 @@ async def _lifespan(app: FastAPI):
     """FastAPI lifespan: start/stop PaperTradingRunner if enabled."""
     if getattr(app.state, "start_runner", False):
         try:
+            # Patch event loop globally so ib_async works inside
+            # uvicorn's loop (APScheduler + broker async calls).
+            import nest_asyncio
+            nest_asyncio.apply()
+
             runner = _build_runner(app.state.data_dir)
             await runner.start()
             app.state.runner = runner
