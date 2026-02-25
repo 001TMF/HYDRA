@@ -80,6 +80,7 @@ def _build_runner(data_dir: Path):
     # Data ingestion pipelines (IB Gateway)
     parquet_lake = ParquetLake(data_dir / "lake")
     feature_store = FeatureStore(data_dir / "feature_store.db")
+    market = os.environ.get("HYDRA_MARKET", "ZO")
     exchange = os.environ.get("HYDRA_EXCHANGE", "CBOT")
     ib_futures = IBFuturesIngestPipeline(
         broker=broker, parquet_lake=parquet_lake, feature_store=feature_store,
@@ -90,6 +91,13 @@ def _build_runner(data_dir: Path):
         exchange=exchange,
     )
 
+    runner_config = {
+        "market": market,
+        "contract_symbol": market,
+        "contract_exchange": exchange,
+        "trading_mode": os.environ.get("TRADING_MODE", "paper"),
+    }
+
     return PaperTradingRunner(
         broker=broker,
         risk_gate=risk_gate,
@@ -99,6 +107,7 @@ def _build_runner(data_dir: Path):
         model=model,
         reconciler=reconciler,
         ingestion_pipelines=[ib_futures, ib_options],
+        config=runner_config,
     )
 
 
