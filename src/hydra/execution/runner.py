@@ -30,6 +30,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 if TYPE_CHECKING:
     from hydra.agent.loop import AgentLoop
+    from hydra.config.markets import MarketConfig
     from hydra.execution.broker import BrokerGateway
     from hydra.execution.fill_journal import FillJournal
     from hydra.execution.order_manager import OrderManager
@@ -93,6 +94,8 @@ class PaperTradingRunner:
         feature_assembler: FeatureAssembler | None = None,
         config: dict | None = None,
         ingestion_pipelines: list | None = None,
+        market_configs: list[MarketConfig] | None = None,
+        market_pipelines: dict[str, list] | None = None,
     ) -> None:
         self._broker = broker
         self._risk_gate = risk_gate
@@ -103,6 +106,8 @@ class PaperTradingRunner:
         self._reconciler = reconciler
         self._feature_assembler = feature_assembler
         self._ingestion_pipelines = ingestion_pipelines or []
+        self._market_configs = market_configs
+        self._market_pipelines = market_pipelines or {}
 
         cfg = config or {}
         self._schedule_hour: int = cfg.get("schedule_hour", 14)
@@ -252,7 +257,9 @@ class PaperTradingRunner:
         # ------------------------------------------------------------------
         # 2.5 Run data ingestion (IB pipelines)
         # ------------------------------------------------------------------
-        if self._ingestion_pipelines:
+        if self._market_configs and self._market_pipelines:
+            await self._ingest_all_markets(datetime.now(timezone.utc))
+        elif self._ingestion_pipelines:
             for pipeline in self._ingestion_pipelines:
                 try:
                     await pipeline.run_async(self._market, datetime.now(timezone.utc))
@@ -402,6 +409,24 @@ class PaperTradingRunner:
             logger.error("order_execution_failed", error=str(exc))
 
         return summary
+
+    async def _ingest_all_markets(self, now: datetime) -> None:
+        """Run ingestion pipelines for all configured markets."""
+        for cfg in self._market_configs:
+            pipelines = self._market_pipelines.get(cfg.symbol, [])
+            for pipeline in pipelines:
+                try:
+                    if hasattr(pipeline, "run_async"):
+                        await pipeline.run_async(cfg.symbol, now)
+                    else:
+                        pipeline.run(cfg.symbol, now)
+                except Exception as exc:
+                    logger.warning(
+                        "ingestion_failed",
+                        market=cfg.symbol,
+                        pipeline=type(pipeline).__name__,
+                        error=str(exc),
+                    )
 
     # ------------------------------------------------------------------
     # Data helpers — replace placeholders with real data sources

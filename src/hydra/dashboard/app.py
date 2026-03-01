@@ -34,8 +34,11 @@ def _build_runner(data_dir: Path):
     from hydra.agent.loop import AgentLoop
     from hydra.agent.promotion import PromotionEvaluator
     from hydra.agent.rollback import HysteresisRollbackTrigger
+    from hydra.config.markets import MARKETS
+    from hydra.data.ingestion.cot import COTIngestPipeline
     from hydra.data.ingestion.ib_futures import IBFuturesIngestPipeline
     from hydra.data.ingestion.ib_options import IBOptionsIngestPipeline
+    from hydra.data.ingestion.options_features import OptionsFeaturePipeline
     from hydra.data.store.feature_store import FeatureStore
     from hydra.data.store.parquet_lake import ParquetLake
     from hydra.execution.broker import BrokerGateway
@@ -45,6 +48,7 @@ def _build_runner(data_dir: Path):
     from hydra.execution.risk_gate import RiskGate
     from hydra.execution.runner import PaperTradingRunner
     from hydra.model.baseline import BaselineModel
+    from hydra.model.features import FeatureAssembler
     from hydra.risk.circuit_breakers import CircuitBreakerManager
     from hydra.sandbox.evaluator import CompositeEvaluator
     from hydra.sandbox.journal import ExperimentJournal
@@ -77,24 +81,46 @@ def _build_runner(data_dir: Path):
     model = BaselineModel()
     reconciler = SlippageReconciler(fill_journal)
 
-    # Data ingestion pipelines (IB Gateway)
+    # Data ingestion pipelines (multi-market)
     parquet_lake = ParquetLake(data_dir / "lake")
     feature_store = FeatureStore(data_dir / "feature_store.db")
-    market = os.environ.get("HYDRA_MARKET", "ZO")
-    exchange = os.environ.get("HYDRA_EXCHANGE", "CBOT")
-    ib_futures = IBFuturesIngestPipeline(
-        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store,
-        exchange=exchange,
-    )
-    ib_options = IBOptionsIngestPipeline(
-        broker=broker, parquet_lake=parquet_lake, feature_store=feature_store,
-        exchange=exchange,
-    )
+
+    symbols_raw = os.environ.get("HYDRA_MARKETS", "HE,LE,GF")
+    symbols = [s.strip() for s in symbols_raw.split(",") if s.strip()]
+
+    market_configs = []
+    market_pipelines = {}
+    for symbol in symbols:
+        if symbol not in MARKETS:
+            logger.warning("unknown_market_symbol_skipping", symbol=symbol)
+            continue
+        cfg = MARKETS[symbol]
+        market_configs.append(cfg)
+        market_pipelines[symbol] = [
+            IBFuturesIngestPipeline(
+                broker=broker, parquet_lake=parquet_lake, feature_store=feature_store,
+                exchange=cfg.exchange,
+            ),
+            IBOptionsIngestPipeline(
+                broker=broker, parquet_lake=parquet_lake, feature_store=feature_store,
+                exchange=cfg.exchange,
+            ),
+            COTIngestPipeline(
+                parquet_lake=parquet_lake, feature_store=feature_store,
+                cftc_code=cfg.cftc_code,
+            ),
+            OptionsFeaturePipeline(
+                parquet_lake=parquet_lake, feature_store=feature_store,
+            ),
+        ]
+
+    primary_market = market_configs[0].symbol if market_configs else "HE"
+    feature_assembler = FeatureAssembler(feature_store=feature_store)
 
     runner_config = {
-        "market": market,
-        "contract_symbol": market,
-        "contract_exchange": exchange,
+        "market": primary_market,
+        "contract_symbol": primary_market,
+        "contract_exchange": market_configs[0].exchange if market_configs else "CME",
         "trading_mode": os.environ.get("TRADING_MODE", "paper"),
     }
 
@@ -106,7 +132,9 @@ def _build_runner(data_dir: Path):
         agent_loop=agent_loop,
         model=model,
         reconciler=reconciler,
-        ingestion_pipelines=[ib_futures, ib_options],
+        feature_assembler=feature_assembler,
+        market_configs=market_configs,
+        market_pipelines=market_pipelines,
         config=runner_config,
     )
 
