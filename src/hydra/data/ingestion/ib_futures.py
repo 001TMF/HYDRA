@@ -125,6 +125,9 @@ class IBFuturesIngestPipeline(IngestPipeline):
     def persist(self, data: dict, market: str, date: datetime) -> None:
         """Write validated OHLCV data to Parquet lake and close prices to feature store.
 
+        Each bar's ``ts_event`` is used as the ``as_of`` date for the feature
+        store so that backfill (multi-bar) writes have correct temporal keys.
+
         Parameters
         ----------
         data : dict
@@ -154,11 +157,12 @@ class IBFuturesIngestPipeline(IngestPipeline):
         self.parquet_lake.write(table, data_type="futures", market=market, date=date)
 
         for rec in records:
+            bar_date = self._parse_bar_date(rec["ts_event"], date)
             self.feature_store.write_feature(
                 market=market,
                 feature_name=f"futures_close_{rec['symbol']}",
-                as_of=date,
-                available_at=date,
+                as_of=bar_date,
+                available_at=bar_date,
                 value=rec["close"],
             )
 
@@ -168,6 +172,26 @@ class IBFuturesIngestPipeline(IngestPipeline):
             records=len(records),
             date=str(date),
         )
+
+    @staticmethod
+    def _parse_bar_date(ts_event: str, fallback: datetime) -> datetime:
+        """Parse a bar's ts_event string to a timezone-aware datetime."""
+        from datetime import timezone as tz
+
+        for fmt in ("%Y-%m-%d", "%Y%m%d"):
+            try:
+                dt = datetime.strptime(ts_event.strip()[:10], fmt)
+                return dt.replace(tzinfo=tz.utc)
+            except (ValueError, AttributeError):
+                continue
+        # ts_event might be an ISO string from a snapshot
+        try:
+            dt = datetime.fromisoformat(ts_event)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=tz.utc)
+            return dt
+        except (ValueError, AttributeError):
+            return fallback
 
     async def run_async(self, market: str, date: datetime) -> bool:
         """Fetch, validate, and persist futures OHLCV via IB Gateway.
@@ -299,17 +323,81 @@ class IBFuturesIngestPipeline(IngestPipeline):
         )
         return result
 
-    async def _fetch_historical(self, contract, log) -> list:
-        """Fetch 1-day OHLCV bars via reqHistoricalDataAsync."""
+    async def run_backfill_async(
+        self, market: str, date: datetime, duration: str = "1 Y"
+    ) -> bool:
+        """Fetch historical daily bars and backfill the feature store.
+
+        Same as ``run_async`` but requests a longer duration (default 1 year)
+        so that ~250 trading days of ``futures_close_{market}`` are written.
+
+        Parameters
+        ----------
+        market : str
+            Root symbol (e.g., "HE").
+        date : datetime
+            Reference date (timezone-aware UTC).
+        duration : str
+            IB duration string (e.g., "1 Y", "6 M", "30 D").
+        """
+        log = logger.bind(
+            pipeline="IBFuturesIngestPipeline",
+            market=market,
+            date=str(date),
+            mode="backfill",
+        )
+        try:
+            log.info("backfill_started", duration=duration)
+            self._broker.ib.reqMarketDataType(3)
+
+            contract = await self._qualify_futures_contract(market, log)
+            if contract is None:
+                log.error("qualify_contract_failed", market=market)
+                return False
+
+            bars = await self._fetch_historical(contract, log, duration_str=duration)
+            if not bars:
+                log.warning("no_historical_bars_for_backfill", market=market)
+                return False
+
+            records = [
+                {
+                    "open": float(bar.open),
+                    "high": float(bar.high),
+                    "low": float(bar.low),
+                    "close": float(bar.close),
+                    "volume": int(bar.volume),
+                    "symbol": market,
+                    "ts_event": str(bar.date),
+                }
+                for bar in bars
+            ]
+
+            cleaned, warnings = self.validate({"records": records})
+            for w in warnings:
+                log.warning("validation_warning", detail=w)
+
+            self.persist(cleaned, market, date)
+            log.info("backfill_complete", record_count=len(cleaned.get("records", [])))
+            return True
+
+        except Exception as e:
+            log.error("backfill_failed", error=str(e), exc_info=True)
+            return False
+
+    async def _fetch_historical(
+        self, contract, log, duration_str: str = "1 D"
+    ) -> list:
+        """Fetch OHLCV bars via reqHistoricalDataAsync."""
         bars = await self._broker.ib.reqHistoricalDataAsync(
             contract,
             endDateTime="",
-            durationStr="1 D",
+            durationStr=duration_str,
             barSizeSetting="1 day",
             whatToShow="TRADES",
             useRTH=False,
         )
-        log.info("historical_bars_fetched", count=len(bars) if bars else 0)
+        log.info("historical_bars_fetched", count=len(bars) if bars else 0, duration=duration_str)
         return bars or []
 
     async def _fetch_snapshot(
