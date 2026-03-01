@@ -159,7 +159,15 @@ class COTIngestPipeline(IngestPipeline):
             if report_date_raw is None:
                 continue
 
-            if isinstance(report_date_raw, str):
+            if isinstance(report_date_raw, (int, float)):
+                # CFTC YYMMDD as integer (e.g., 260224 -> 2026-02-24)
+                try:
+                    report_date = datetime.strptime(
+                        str(int(report_date_raw)), "%y%m%d"
+                    ).replace(tzinfo=timezone.utc)
+                except ValueError:
+                    continue
+            elif isinstance(report_date_raw, str):
                 try:
                     report_date = datetime.strptime(
                         report_date_raw, "%Y-%m-%d"
@@ -173,12 +181,15 @@ class COTIngestPipeline(IngestPipeline):
                         continue
             else:
                 # Assume it's already a date-like object
-                report_date = datetime(
-                    report_date_raw.year,
-                    report_date_raw.month,
-                    report_date_raw.day,
-                    tzinfo=timezone.utc,
-                )
+                try:
+                    report_date = datetime(
+                        report_date_raw.year,
+                        report_date_raw.month,
+                        report_date_raw.day,
+                        tzinfo=timezone.utc,
+                    )
+                except (AttributeError, TypeError):
+                    continue
 
             # Extract position data
             managed_money_long = float(
