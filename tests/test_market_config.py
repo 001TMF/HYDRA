@@ -49,8 +49,8 @@ class TestMarketRegistry:
             )
 
     def test_each_exchange_is_valid(self):
-        """Exchange must be one of GLOBEX, CBOT, or NYBOT."""
-        valid_exchanges = {"GLOBEX", "CBOT", "NYBOT"}
+        """Exchange must be one of CME, CBOT, or NYBOT."""
+        valid_exchanges = {"CME", "CBOT", "NYBOT"}
         for sym, cfg in MARKETS.items():
             assert cfg.exchange in valid_exchanges, (
                 f"{sym}: unexpected exchange {cfg.exchange!r}"
@@ -112,36 +112,36 @@ class TestMarketRegistry:
 class TestMarketSpotChecks:
     """Verify exact field values for representative markets in each exchange."""
 
-    # --- GLOBEX livestock ---
+    # --- CME livestock ---
 
     def test_he_config(self):
-        """HE (Lean Hogs): GLOBEX, CFTC 054642, multiplier 400, tier 1."""
+        """HE (Lean Hogs): CME, CFTC 054642, multiplier 400, tier 1."""
         he = MARKETS["HE"]
-        assert he.exchange == "GLOBEX"
+        assert he.exchange == "CME"
         assert he.cftc_code == "054642"
         assert he.multiplier == 400
         assert he.tier == 1
 
     def test_le_config(self):
-        """LE (Live Cattle): GLOBEX, CFTC 057642, multiplier 400, tier 1."""
+        """LE (Live Cattle): CME, CFTC 057642, multiplier 400, tier 1."""
         le = MARKETS["LE"]
-        assert le.exchange == "GLOBEX"
+        assert le.exchange == "CME"
         assert le.cftc_code == "057642"
         assert le.multiplier == 400
         assert le.tier == 1
 
     def test_gf_config(self):
-        """GF (Feeder Cattle): GLOBEX, CFTC 061641, multiplier 500, tier 1."""
+        """GF (Feeder Cattle): CME, CFTC 061641, multiplier 500, tier 1."""
         gf = MARKETS["GF"]
-        assert gf.exchange == "GLOBEX"
+        assert gf.exchange == "CME"
         assert gf.cftc_code == "061641"
         assert gf.multiplier == 500
         assert gf.tier == 1
 
     def test_dc_config(self):
-        """DC (Class III Milk): GLOBEX, CFTC 052641, multiplier 2000, tier 2."""
+        """DC (Class III Milk): CME, CFTC 052641, multiplier 2000, tier 2."""
         dc = MARKETS["DC"]
-        assert dc.exchange == "GLOBEX"
+        assert dc.exchange == "CME"
         assert dc.cftc_code == "052641"
         assert dc.multiplier == 2000
         assert dc.tier == 2

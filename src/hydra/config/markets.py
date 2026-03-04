@@ -45,7 +45,7 @@ class MarketConfig:
 MARKETS: dict[str, MarketConfig] = {
     "HE": MarketConfig(
         symbol="HE",
-        exchange="GLOBEX",
+        exchange="CME",
         cftc_code="054642",
         multiplier=400,
         strike_range=15,
@@ -54,7 +54,7 @@ MARKETS: dict[str, MarketConfig] = {
     ),
     "LE": MarketConfig(
         symbol="LE",
-        exchange="GLOBEX",
+        exchange="CME",
         cftc_code="057642",
         multiplier=400,
         strike_range=15,
@@ -63,7 +63,7 @@ MARKETS: dict[str, MarketConfig] = {
     ),
     "GF": MarketConfig(
         symbol="GF",
-        exchange="GLOBEX",
+        exchange="CME",
         cftc_code="061641",
         multiplier=500,
         strike_range=15,
@@ -72,7 +72,7 @@ MARKETS: dict[str, MarketConfig] = {
     ),
     "DC": MarketConfig(
         symbol="DC",
-        exchange="GLOBEX",
+        exchange="CME",
         cftc_code="052641",
         multiplier=2000,
         strike_range=5,
