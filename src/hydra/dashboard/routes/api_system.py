@@ -78,7 +78,9 @@ async def backfill(request: Request):
 
     async def _run_backfill():
         from hydra.data.ingestion.ib_futures import IBFuturesIngestPipeline
+        from hydra.data.ingestion.ib_options import IBOptionsIngestPipeline
         from hydra.data.ingestion.cot import COTIngestPipeline
+        from hydra.data.ingestion.options_features import OptionsFeaturePipeline
 
         now = datetime.now(timezone.utc)
         results = {}
@@ -88,7 +90,10 @@ async def backfill(request: Request):
 
         for cfg in configs:
             market = cfg.symbol
-            market_results = {"futures": False, "cot": False}
+            market_results = {
+                "futures": False, "cot": False,
+                "options": False, "options_features": False,
+            }
 
             for pipeline in pipelines.get(market, []):
                 try:
@@ -98,6 +103,14 @@ async def backfill(request: Request):
                         )
                     elif isinstance(pipeline, COTIngestPipeline):
                         market_results["cot"] = pipeline.run(market, now)
+                    elif isinstance(pipeline, IBOptionsIngestPipeline):
+                        market_results["options"] = await pipeline.run_async(
+                            market, now
+                        )
+                    elif isinstance(pipeline, OptionsFeaturePipeline):
+                        market_results["options_features"] = await pipeline.run_async(
+                            market, now
+                        )
                 except Exception as exc:
                     import structlog
                     structlog.get_logger().warning(
