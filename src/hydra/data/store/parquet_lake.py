@@ -108,6 +108,10 @@ class ParquetLake:
     ) -> pa.Table:
         """Read records from the lake with optional date filtering.
 
+        Scans the specific ``data_type=X/market=Y`` subdirectory to avoid
+        schema conflicts between different data types (e.g. futures vs options
+        have entirely different column sets).
+
         Parameters
         ----------
         data_type : str
@@ -124,34 +128,40 @@ class ParquetLake:
         pa.Table
             Combined table of all matching records.
         """
+        # Scope to the specific data_type/market subdirectory so pyarrow
+        # only unifies schemas within the same data type.
+        sub_path = self.base_path / f"data_type={data_type}" / f"market={market}"
+        if not sub_path.exists():
+            logger.info(
+                "parquet_lake_read",
+                data_type=data_type,
+                market=market,
+                rows=0,
+            )
+            return pa.table({})
+
         dataset = ds.dataset(
-            str(self.base_path),
+            str(sub_path),
             format="parquet",
             partitioning="hive",
         )
 
-        # Build filter expression
-        filter_expr = (ds.field("data_type") == data_type) & (
-            ds.field("market") == market
-        )
+        filter_expr = None
 
         if start is not None:
             start_ym = f"{start.year}{start.month:02d}"
-            filter_expr = filter_expr & (
-                (ds.field("year") + ds.field("month")) >= start_ym
-            )
+            filter_expr = (ds.field("year") + ds.field("month")) >= start_ym
 
         if end is not None:
             end_ym = f"{end.year}{end.month:02d}"
-            filter_expr = filter_expr & (
-                (ds.field("year") + ds.field("month")) <= end_ym
-            )
+            end_filter = (ds.field("year") + ds.field("month")) <= end_ym
+            filter_expr = (filter_expr & end_filter) if filter_expr is not None else end_filter
 
         table = dataset.to_table(filter=filter_expr)
 
-        # Drop partition columns from the result for clean consumption
+        # Drop remaining partition columns (year, month) from the result
         columns_to_drop = [
-            col for col in PARTITION_COLUMNS if col in table.column_names
+            col for col in ("year", "month") if col in table.column_names
         ]
         table = table.drop(columns_to_drop)
 
