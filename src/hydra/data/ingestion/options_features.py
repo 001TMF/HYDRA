@@ -176,24 +176,33 @@ class OptionsFeaturePipeline(IngestPipeline):
             call_mids = np.array([call_by_strike[k]["mid"] for k in common_strikes], dtype=np.float64)
             call_oi = np.array([call_by_strike[k]["oi"] for k in common_strikes], dtype=np.float64)
             put_oi = np.array([put_by_strike[k]["oi"] for k in common_strikes], dtype=np.float64)
-            spread_pct_arr = np.array([call_by_strike[k]["spread_pct"] for k in common_strikes], dtype=np.float64)
+            # Use max(call_oi, put_oi) per strike — ag futures are put-heavy
+            # (producer hedging), so call-only OI misses most liquidity.
+            combined_oi = np.maximum(call_oi, put_oi)
+            # Use the tighter of call/put spread as the liquidity proxy
+            put_spread = np.array([put_by_strike[k]["spread_pct"] for k in common_strikes], dtype=np.float64)
+            spread_pct_arr = np.minimum(
+                np.array([call_by_strike[k]["spread_pct"] for k in common_strikes], dtype=np.float64),
+                put_spread,
+            )
 
             r = self.risk_free_rate
 
             # Step 5 & 6: Density → moments → write 5 features
             # Agricultural futures options have wider spreads than equities,
             # especially with IB delayed data (type 3). Relax spread filter
-            # from the 20% default to 50%; OI is the more reliable liquidity
-            # signal for these markets.
+            # from the 20% default to 50% and lower min_oi from 50 to 10;
+            # combined OI (max of call/put) is the liquidity signal.
             density_result = extract_density(
                 strikes=strikes_arr,
                 call_prices=call_mids,
-                oi=call_oi,
+                oi=combined_oi,
                 bid_ask_spread_pct=spread_pct_arr,
                 spot=spot,
                 r=r,
                 T=T,
                 max_spread_pct=0.50,
+                min_oi=10,
             )
 
             for w in density_result.warnings:
