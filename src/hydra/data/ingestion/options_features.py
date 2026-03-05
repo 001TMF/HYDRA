@@ -161,10 +161,18 @@ class OptionsFeaturePipeline(IngestPipeline):
                 spread_pct = (ask - bid) / mid if mid > 1e-12 else 1.0
 
                 row_data = {"mid": mid, "oi": oi, "spread_pct": spread_pct, "bid": bid, "ask": ask}
+
+                # Multiple Parquet batches accumulate in the lake. Prefer
+                # the row with the best (tightest) spread for each strike
+                # so that stale bid=0/ask=0 snapshots don't clobber real quotes.
                 if is_call:
-                    call_by_strike[strike] = row_data
+                    existing = call_by_strike.get(strike)
+                    if existing is None or spread_pct < existing["spread_pct"]:
+                        call_by_strike[strike] = row_data
                 else:
-                    put_by_strike[strike] = row_data
+                    existing = put_by_strike.get(strike)
+                    if existing is None or spread_pct < existing["spread_pct"]:
+                        put_by_strike[strike] = row_data
 
             # Only use strikes where we have both a call and a put
             common_strikes = sorted(set(call_by_strike) & set(put_by_strike))
