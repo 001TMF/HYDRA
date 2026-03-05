@@ -181,6 +181,10 @@ class OptionsFeaturePipeline(IngestPipeline):
             r = self.risk_free_rate
 
             # Step 5 & 6: Density → moments → write 5 features
+            # Agricultural futures options have wider spreads than equities,
+            # especially with IB delayed data (type 3). Relax spread filter
+            # from the 20% default to 50%; OI is the more reliable liquidity
+            # signal for these markets.
             density_result = extract_density(
                 strikes=strikes_arr,
                 call_prices=call_mids,
@@ -189,6 +193,7 @@ class OptionsFeaturePipeline(IngestPipeline):
                 spot=spot,
                 r=r,
                 T=T,
+                max_spread_pct=0.50,
             )
 
             for w in density_result.warnings:
