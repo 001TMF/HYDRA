@@ -299,6 +299,12 @@ class PaperTradingRunner:
             summary["agent_result"] = {"error": str(exc)}
 
         # ------------------------------------------------------------------
+        # 3.5 Bootstrap training if model not yet fitted
+        # ------------------------------------------------------------------
+        if not self._model.is_fitted:
+            self._try_bootstrap_train()
+
+        # ------------------------------------------------------------------
         # 4. Generate trading signal
         # ------------------------------------------------------------------
         if not self._model.is_fitted:
@@ -427,6 +433,86 @@ class PaperTradingRunner:
                         pipeline=type(pipeline).__name__,
                         error=str(exc),
                     )
+
+    # ------------------------------------------------------------------
+    # Bootstrap training
+    # ------------------------------------------------------------------
+
+    def _try_bootstrap_train(self) -> None:
+        """Train the model from historical feature store data if enough exists.
+
+        Queries futures_close_{market} history, builds feature matrix via
+        FeatureAssembler.assemble_matrix(), computes binary targets, and
+        trains the BaselineModel. Requires >= 50 samples with valid targets.
+        """
+        import numpy as np
+        from datetime import timedelta
+
+        if self._feature_assembler is None:
+            logger.info("bootstrap_skip_no_assembler")
+            return
+
+        try:
+            fs = self._feature_assembler.feature_store
+            now = datetime.now(timezone.utc)
+            one_year_ago = now - timedelta(days=400)
+
+            # Get all historical futures close timestamps for the primary market
+            price_feature = f"futures_close_{self._market}"
+            history = fs.get_feature_history(
+                self._market, price_feature, one_year_ago, now
+            )
+
+            if len(history) < 50:
+                logger.info(
+                    "bootstrap_skip_insufficient_data",
+                    price_rows=len(history),
+                    required=50,
+                )
+                return
+
+            # Parse timestamps and prices
+            from dateutil.parser import isoparse
+
+            timestamps = []
+            prices = []
+            for row in history:
+                timestamps.append(isoparse(row["as_of"]))
+                prices.append(row["value"])
+
+            prices_arr = np.array(prices, dtype=np.float64)
+
+            # Build feature matrix for each timestamp
+            X, feature_names = self._feature_assembler.assemble_matrix(
+                self._market, timestamps
+            )
+
+            # Compute binary target: 1 if price[t+5] > price[t]
+            y = self._feature_assembler.compute_binary_target(prices_arr, horizon=5)
+
+            # Filter out rows where target is NaN (last 5 days)
+            valid_mask = ~np.isnan(y)
+            X_valid = X[valid_mask]
+            y_valid = y[valid_mask]
+
+            if len(y_valid) < 30:
+                logger.info(
+                    "bootstrap_skip_insufficient_targets",
+                    valid_targets=len(y_valid),
+                    required=30,
+                )
+                return
+
+            self._model.train(X_valid, y_valid, feature_names)
+            logger.info(
+                "bootstrap_train_complete",
+                n_samples=len(y_valid),
+                n_features=X_valid.shape[1],
+                pos_rate=round(float(y_valid.mean()), 3),
+            )
+
+        except Exception as exc:
+            logger.warning("bootstrap_train_failed", error=str(exc), exc_info=True)
 
     # ------------------------------------------------------------------
     # Data helpers — replace placeholders with real data sources
