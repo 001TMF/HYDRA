@@ -6,6 +6,7 @@ services:
     environment:
       TRADING_MODE: ${TRADING_MODE:-paper}
       READ_ONLY_API: "no"
+      EXISTING_SESSION_DETECTED_ACTION: "primaryoverride"
     ports:
       - "127.0.0.1:4002:4004"   # Paper API port (internal 4004 -> host 4002)
       - "127.0.0.1:5900:5900"   # VNC for debugging (optional)
