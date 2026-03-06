@@ -157,7 +157,7 @@ class BrokerGateway:
         Returns the fully qualified contract with conId populated.
         """
         qualified = await self.ib.qualifyContractsAsync(contract)
-        if qualified:
+        if qualified and qualified[0] is not None:
             return qualified[0]
         return contract
 

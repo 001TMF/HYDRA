@@ -553,14 +553,13 @@ class PaperTradingRunner:
         import math
 
         import numpy as np
-        from ib_async import Contract
+        from ib_async import ContFuture
 
         # Qualify contract once and cache
         if self._qualified_contract is None:
-            raw = Contract(
+            raw = ContFuture(
                 symbol=self._contract_symbol,
                 exchange=self._contract_exchange,
-                secType=self._contract_sec_type,
             )
             self._qualified_contract = await self._broker.qualify_contract(raw)
             logger.info(
