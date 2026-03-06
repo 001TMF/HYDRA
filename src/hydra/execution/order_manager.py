@@ -45,6 +45,7 @@ class OrderManager:
         twap_slices: Number of TWAP time slices (default 5).
         twap_jitter_pct: Randomize slice timing by +/- this fraction (default 20%).
         price_step_pct: Price step toward market when patience exhausted (default 0.1%).
+        min_tick: Minimum tick size for price rounding (default 0.00025 for CME livestock).
     """
 
     def __init__(
@@ -55,6 +56,7 @@ class OrderManager:
         twap_slices: int = 5,
         twap_jitter_pct: float = 0.20,
         price_step_pct: float = 0.001,
+        min_tick: float = 0.00025,
     ) -> None:
         self._risk_gate = risk_gate
         self._patience_seconds = patience_seconds
@@ -62,6 +64,7 @@ class OrderManager:
         self._twap_slices = twap_slices
         self._twap_jitter_pct = twap_jitter_pct
         self._price_step_pct = price_step_pct
+        self._min_tick = min_tick
 
     async def route_order(
         self,
@@ -141,14 +144,15 @@ class OrderManager:
 
         Returns list with a single Trade (or None if risk-blocked).
         """
-        order = LimitOrder(direction, n_contracts, mid_price)
+        limit_price = self._round_to_tick(mid_price)
+        order = LimitOrder(direction, n_contracts, limit_price)
 
         logger.info(
             "limit_patience_initial",
             contract=str(contract),
             direction=direction,
             n_contracts=n_contracts,
-            limit_price=mid_price,
+            limit_price=limit_price,
         )
 
         trade = await self._risk_gate.submit(contract, order, **risk_params)
@@ -268,11 +272,11 @@ class OrderManager:
         return trade.orderStatus.status == "Filled"
 
     def _step_price(self, mid_price: float, direction: str) -> float:
-        """Step price toward market by price_step_pct."""
+        """Step price toward market by price_step_pct, rounded to tick."""
         step = mid_price * self._price_step_pct
         if direction == "BUY":
-            return mid_price + step
-        return mid_price - step
+            return self._round_to_tick(mid_price + step)
+        return self._round_to_tick(mid_price - step)
 
     def _cross_spread_price(self, mid_price: float, direction: str) -> float:
         """Cross the spread: buy at ask, sell at bid.
@@ -281,8 +285,14 @@ class OrderManager:
         """
         spread_step = mid_price * self._price_step_pct * 10
         if direction == "BUY":
-            return mid_price + spread_step
-        return mid_price - spread_step
+            return self._round_to_tick(mid_price + spread_step)
+        return self._round_to_tick(mid_price - spread_step)
+
+    def _round_to_tick(self, price: float) -> float:
+        """Round price to nearest valid tick increment."""
+        if self._min_tick <= 0:
+            return round(price, 6)
+        return round(round(price / self._min_tick) * self._min_tick, 10)
 
 
 def _compute_risk_params(
