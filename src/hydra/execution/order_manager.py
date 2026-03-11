@@ -45,7 +45,9 @@ class OrderManager:
         twap_slices: Number of TWAP time slices (default 5).
         twap_jitter_pct: Randomize slice timing by +/- this fraction (default 20%).
         price_step_pct: Price step toward market when patience exhausted (default 0.1%).
-        min_tick: Minimum tick size for price rounding (default 0.00025 for CME livestock).
+        min_tick: Minimum tick size for price rounding (default 0.025 for CME livestock).
+            Note: IB reports minTick=0.00025 with priceMagnifier=100 for HE/LE/GF,
+            but order prices use the display tick = minTick * priceMagnifier = 0.025.
     """
 
     def __init__(
@@ -56,7 +58,7 @@ class OrderManager:
         twap_slices: int = 5,
         twap_jitter_pct: float = 0.20,
         price_step_pct: float = 0.001,
-        min_tick: float = 0.00025,
+        min_tick: float = 0.025,
     ) -> None:
         self._risk_gate = risk_gate
         self._patience_seconds = patience_seconds
