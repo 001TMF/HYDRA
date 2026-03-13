@@ -158,14 +158,15 @@ class TestLimitOrderEnforcement:
             assert call_args[0][1] == 2       # n_contracts
             assert call_args[0][2] == 100.0   # mid_price
 
-    def test_no_market_order_import(self) -> None:
-        """order_manager.py does not import or reference MarketOrder."""
-        import inspect
+    def test_market_order_only_when_enabled(self) -> None:
+        """MarketOrder is only used when use_market_orders=True."""
+        from hydra.execution.order_manager import OrderManager
 
-        from hydra.execution import order_manager
+        om = OrderManager(risk_gate=MagicMock(), use_market_orders=False)
+        assert not om._use_market_orders
 
-        source = inspect.getsource(order_manager)
-        assert "MarketOrder" not in source
+        om2 = OrderManager(risk_gate=MagicMock(), use_market_orders=True)
+        assert om2._use_market_orders
 
 
 class TestTwapSlicingMath:

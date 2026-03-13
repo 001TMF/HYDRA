@@ -19,7 +19,7 @@ import random
 from typing import TYPE_CHECKING
 
 import structlog
-from ib_async import LimitOrder
+from ib_async import LimitOrder, MarketOrder
 
 if TYPE_CHECKING:
     from ib_async import Contract, Trade
@@ -48,6 +48,8 @@ class OrderManager:
         min_tick: Minimum tick size for price rounding (default 0.025 for CME livestock).
             Note: IB reports minTick=0.00025 with priceMagnifier=100 for HE/LE/GF,
             but order prices use the display tick = minTick * priceMagnifier = 0.025.
+        use_market_orders: If True, skip limit patience and submit MarketOrder directly.
+            Useful for paper trading without live market data subscriptions.
     """
 
     def __init__(
@@ -59,6 +61,7 @@ class OrderManager:
         twap_jitter_pct: float = 0.20,
         price_step_pct: float = 0.001,
         min_tick: float = 0.025,
+        use_market_orders: bool = False,
     ) -> None:
         self._risk_gate = risk_gate
         self._patience_seconds = patience_seconds
@@ -67,6 +70,7 @@ class OrderManager:
         self._twap_jitter_pct = twap_jitter_pct
         self._price_step_pct = price_step_pct
         self._min_tick = min_tick
+        self._use_market_orders = use_market_orders
 
     async def route_order(
         self,
@@ -99,10 +103,24 @@ class OrderManager:
             List of Trade objects (single for limit, multiple for TWAP).
             None entries indicate risk-blocked orders.
         """
-        participation_rate = n_contracts / max(adv, 1)
         risk_params = _compute_risk_params(
             daily_pnl, peak_equity, current_equity, position_value, trade_loss,
         )
+
+        if self._use_market_orders:
+            logger.info(
+                "routing_market_order",
+                contract=str(contract),
+                direction=direction,
+                n_contracts=n_contracts,
+            )
+            order = MarketOrder(direction, n_contracts)
+            trade = await self._risk_gate.submit(contract, order, **risk_params)
+            if trade is not None:
+                await self._wait_for_fill(trade, 30)
+            return [trade]
+
+        participation_rate = n_contracts / max(adv, 1)
 
         if participation_rate >= self._twap_volume_threshold:
             logger.info(

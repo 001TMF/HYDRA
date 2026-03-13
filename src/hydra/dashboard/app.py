@@ -64,7 +64,11 @@ def _build_runner(data_dir: Path):
 
     breakers = CircuitBreakerManager()
     risk_gate = RiskGate(broker=broker, breakers=breakers)
-    order_manager = OrderManager(risk_gate=risk_gate)
+    trading_mode = os.environ.get("TRADING_MODE", "paper")
+    order_manager = OrderManager(
+        risk_gate=risk_gate,
+        use_market_orders=(trading_mode == "paper"),
+    )
     agent_loop = AgentLoop(
         observer=DriftObserver(),
         diagnostician=Diagnostician(),
